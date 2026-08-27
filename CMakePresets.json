@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "configurePresets": [
+	{
+      "name": "default",
+      "binaryDir": "${sourceDir}/build",
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo",
+		"CMAKE_EXPORT_COMPILE_COMMANDS" : "ON"
+	  }
+    }
+  ]
+}
