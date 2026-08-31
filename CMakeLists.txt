@@ -74,6 +74,7 @@ set_target_properties(main PROPERTIES
 # BAD: GNU Specific:
 # target_compile_options(main PRIVATE -Wall -Werror)
 
+add_subdirectory(dbEngine)
 
 option(RUN_TESTS "Run and build tests" 0)
 if(RUN_TESTS) 
