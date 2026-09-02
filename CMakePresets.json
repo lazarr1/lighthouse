@@ -8,8 +8,6 @@
       "cacheVariables": {
         "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo",
         "CMAKE_EXPORT_COMPILE_COMMANDS" : "ON",
-        "CMAKE_C_COMPILER" : "/opt/homebrew/opt/llvm/bin/clang",
-        "CMAKE_CXX_COMPILER" : "/opt/homebrew/opt/llvm/bin/clang++",
         "CMAKE_OSX_SYSROOT": "macosx"
 	  }
     }
