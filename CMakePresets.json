@@ -10,7 +10,7 @@
         "CMAKE_EXPORT_COMPILE_COMMANDS" : "ON",
         "CMAKE_C_COMPILER" : "/opt/homebrew/opt/llvm/bin/clang",
         "CMAKE_CXX_COMPILER" : "/opt/homebrew/opt/llvm/bin/clang++",
-        "CMAKE_OSX_SYSROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+        "CMAKE_OSX_SYSROOT": "macosx"
 	  }
     }
   ]
