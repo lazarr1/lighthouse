@@ -2,12 +2,10 @@
 
 #include <expected>
 
-#include "error.hpp"
+#include "./error.hpp"
 
 namespace db {
 
-template<typename T>
-using Result = std::expected<T, Error>;
+template <typename T> using Result = std::expected<T, Error>;
 
 }
-

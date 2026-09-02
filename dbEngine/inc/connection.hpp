@@ -4,10 +4,10 @@ namespace db {
 
 class IConnection {
 public:
-    virtual ~IConnection() = default;
+  virtual ~IConnection() = default;
 
-    virtual bool isHealthy() const = 0;
-    virtual void close() = 0;
+  virtual bool isHealthy() const = 0;
+  virtual void close() = 0;
 };
 
-}
+} // namespace db

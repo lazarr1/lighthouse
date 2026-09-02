@@ -9,10 +9,9 @@ namespace db {
 
 class IDatabase {
 public:
-    virtual ~IDatabase() = default;
+  virtual ~IDatabase() = default;
 
-    virtual Result<std::unique_ptr<IConnection>>
-    connect() = 0;
+  virtual Result<std::unique_ptr<IConnection>> connect() = 0;
 };
 
-}
+} // namespace db

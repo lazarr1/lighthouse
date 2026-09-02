@@ -1,4 +1,4 @@
-#pragma one
+#pragma once
 
 #include <memory>
 #include <string>
@@ -11,8 +11,7 @@ struct DatabaseConfig {
 
 class IDatabaseDriver {
 public:
-    virtual ~IDatabaseDriver() = default;
+  virtual ~IDatabaseDriver() = default;
 
-    virtual std::unique_ptr<IDatabase>
-    open(const DatabaseConfig&) = 0;
+  virtual std::unique_ptr<IDatabase> open(const DatabaseConfig &) = 0;
 };
