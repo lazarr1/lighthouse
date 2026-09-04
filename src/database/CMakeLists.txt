@@ -28,7 +28,7 @@ target_sources(db_engine_lib
 )
 
 target_compile_features(db_engine_lib 
-  PRIVATE # Should be public if needs cstd in shared header files
+  PUBLIC
   cxx_std_23
 )
 
@@ -42,6 +42,10 @@ target_link_libraries(db_engine_lib
 set_target_properties(db_engine_lib PROPERTIES
     COMPILE_WARNING_AS_ERROR ON
 )
+
+if(RUN_TESTS)
+  return()
+endif()
 
 add_executable(test)
 

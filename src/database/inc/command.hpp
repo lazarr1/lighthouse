@@ -5,6 +5,8 @@
 
 #include "value.hpp"
 
+namespace db {
+
 class Command {
 public:
   virtual ~Command() = default;
@@ -15,8 +17,4 @@ struct SqlCommand : Command {
   std::vector<Value> parameters;
 };
 
-struct DocumentQuery : Command {
-  std::string collection;
-  Document filter;
-  Document projection;
-};
+} // namespace db
