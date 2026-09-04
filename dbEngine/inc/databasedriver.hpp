@@ -4,6 +4,9 @@
 #include <string>
 
 #include "database.hpp"
+#include "result.hpp"
+
+namespace db {
 
 struct DatabaseConfig {
   std::string connection_string;
@@ -13,5 +16,8 @@ class IDatabaseDriver {
 public:
   virtual ~IDatabaseDriver() = default;
 
-  virtual std::unique_ptr<IDatabase> open(const DatabaseConfig &) = 0;
+  virtual Result<std::unique_ptr<IDatabase>>
+  open(const DatabaseConfig &config) = 0;
 };
+
+} // namespace db

@@ -1,3 +1,7 @@
 #include "database.hpp"
+#include "value.hpp"
 
-int main(void) { return 0; }
+int main(void) {
+  db::Value test;
+  return 0;
+}

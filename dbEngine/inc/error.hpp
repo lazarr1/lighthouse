@@ -15,9 +15,10 @@ enum class ErrorCode {
 struct Error {
   ErrorCode code;
   std::string message;
+  std::string driver;
 
   // Useful for debugging driver-specific errors.
-  std::string nativeCode;
+  std::string nativeError;
 };
 
 } // namespace db

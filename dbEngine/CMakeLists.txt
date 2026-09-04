@@ -8,16 +8,21 @@ file(GLOB_RECURSE DBENGINE_HEADERS
     CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/sqlite/inc/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/sqlite/inc/*.hpp"
 )
 
 target_sources(db_engine_lib
   PRIVATE
     src/main.cpp
+    sqlite/src/SqliteDataBase.cpp
+    sqlite/src/SqliteDatabaseDriver.cpp
 
   PUBLIC
     FILE_SET HEADERS
 	BASE_DIRS
 	  inc
+    sqlite/inc
 	FILES
     ${DBENGINE_HEADERS}
 )
@@ -25,6 +30,13 @@ target_sources(db_engine_lib
 target_compile_features(db_engine_lib 
   PRIVATE # Should be public if needs cstd in shared header files
   cxx_std_23
+)
+
+find_package(SQLite3 REQUIRED)
+
+target_link_libraries(db_engine_lib
+  PRIVATE
+    SQLite3::SQLite3
 )
 
 set_target_properties(db_engine_lib PROPERTIES
@@ -41,13 +53,6 @@ target_sources(test
 target_link_libraries(test
   PRIVATE
   db_engine_lib
-)
-
-find_package(SQLite3 REQUIRED)
-
-target_link_libraries(test
-  PRIVATE
-  SQLite3::SQLite3
 )
 
 target_compile_features(test
