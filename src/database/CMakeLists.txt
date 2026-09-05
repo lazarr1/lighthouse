@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.4)
+cmake_minimum_required(VERSION 3.2)
 
 project(db_engine)
 
@@ -10,8 +10,8 @@ file(GLOB_RECURSE DBENGINE_CONTRACT_HEADERS
 
 file(GLOB_RECURSE DBENGINE_SQLITE_HEADERS
     CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/sqlite/inc/*.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/sqlite/inc/*.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/sqlite/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/sqlite/*.hpp"
 )
 
 add_library(db_engine_contracts INTERFACE)
@@ -30,13 +30,11 @@ lighthouse_set_project_warnings(db_engine_lib)
 
 target_sources(db_engine_lib
   PRIVATE
-    src/main.cpp
-    sqlite/src/SqliteDataBase.cpp
-    sqlite/src/SqliteDatabaseDriver.cpp
+    src/test.cpp
 
   PUBLIC
     FILE_SET HEADERS
-    BASE_DIRS sqlite/inc
+    BASE_DIRS sqlite
     FILES ${DBENGINE_SQLITE_HEADERS}
 )
 
@@ -58,23 +56,3 @@ set_target_properties(db_engine_lib PROPERTIES
     COMPILE_WARNING_AS_ERROR ON
 )
 
-if(RUN_TESTS)
-  return()
-endif()
-
-add_executable(test)
-
-target_sources(test
-  PRIVATE
-  sqlite/test.cpp
-)
-
-target_link_libraries(test
-  PRIVATE
-  db_engine_lib
-)
-
-target_compile_features(test
-  PRIVATE # Should be public if needs cstd in shared header files
-  cxx_std_23
-)
