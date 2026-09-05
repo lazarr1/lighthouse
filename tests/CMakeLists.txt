@@ -74,15 +74,17 @@ target_link_libraries(
   lighthouse_test_support
   INTERFACE
     GTest::gmock
-    db_engine_lib
+    db_engine_contracts
 )
 
 # Compile every public database header as the only include in its translation
 # unit. This catches missing includes without changing the production CMake.
+set_property(TARGET db_engine_contracts PROPERTY VERIFY_INTERFACE_HEADER_SETS ON)
 set_property(TARGET db_engine_lib PROPERTY VERIFY_INTERFACE_HEADER_SETS ON)
 add_custom_target(lighthouse_public_header_tests ALL)
 add_dependencies(
   lighthouse_public_header_tests
+  db_engine_contracts_verify_interface_header_sets
   db_engine_lib_verify_interface_header_sets
 )
 

@@ -2,17 +2,31 @@ cmake_minimum_required(VERSION 4.4)
 
 project(db_engine)
 
-add_library(db_engine_lib)
-
-lighthouse_set_project_warnings(db_engine_lib)
-
-file(GLOB_RECURSE DBENGINE_HEADERS
+file(GLOB_RECURSE DBENGINE_CONTRACT_HEADERS
     CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.hpp"
+)
+
+file(GLOB_RECURSE DBENGINE_SQLITE_HEADERS
+    CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/sqlite/inc/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/sqlite/inc/*.hpp"
 )
+
+add_library(db_engine_contracts INTERFACE)
+target_sources(
+  db_engine_contracts
+  INTERFACE
+    FILE_SET HEADERS
+    BASE_DIRS inc
+    FILES ${DBENGINE_CONTRACT_HEADERS}
+)
+target_compile_features(db_engine_contracts INTERFACE cxx_std_23)
+
+add_library(db_engine_lib)
+
+lighthouse_set_project_warnings(db_engine_lib)
 
 target_sources(db_engine_lib
   PRIVATE
@@ -22,11 +36,8 @@ target_sources(db_engine_lib
 
   PUBLIC
     FILE_SET HEADERS
-	BASE_DIRS
-	  inc
-    sqlite/inc
-	FILES
-    ${DBENGINE_HEADERS}
+    BASE_DIRS sqlite/inc
+    FILES ${DBENGINE_SQLITE_HEADERS}
 )
 
 target_compile_features(db_engine_lib 
@@ -37,6 +48,8 @@ target_compile_features(db_engine_lib
 find_package(SQLite3 REQUIRED)
 
 target_link_libraries(db_engine_lib
+  PUBLIC
+    db_engine_contracts
   PRIVATE
     SQLite3::SQLite3
 )
