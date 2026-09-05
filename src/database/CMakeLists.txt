@@ -4,6 +4,8 @@ project(db_engine)
 
 add_library(db_engine_lib)
 
+lighthouse_set_project_warnings(db_engine_lib)
+
 file(GLOB_RECURSE DBENGINE_HEADERS
     CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/inc/*.h"

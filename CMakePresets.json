@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "configurePresets": [
 	{
       "name": "default",
@@ -10,6 +10,28 @@
         "CMAKE_EXPORT_COMPILE_COMMANDS" : "ON",
         "CMAKE_OSX_SYSROOT": "macosx"
 	  }
+    },
+    {
+      "name": "tests",
+      "inherits": "default",
+      "binaryDir": "${sourceDir}/build/tests",
+      "cacheVariables": {
+        "LIGHTHOUSE_ENABLE_COVERAGE": "OFF",
+        "RUN_TESTS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "configuration": "Debug"
+    },
+    {
+      "name": "tests",
+      "configurePreset": "tests",
+      "configuration": "Debug",
+      "targets": ["lighthouse_tests"]
     }
   ]
 }
