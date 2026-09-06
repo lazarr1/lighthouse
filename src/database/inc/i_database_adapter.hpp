@@ -1,11 +1,14 @@
 #pragma once
 
-class iDatabaseSession;
-class config;
-class capabilities; 
+#include "capabilities.hpp"
 
+namespace db {
+
+struct iDatabaseSession;
 
 class iDatabaseAdapter {
-  iDatabaseSession open(config conf);
-  capabilities getCapabilities();
+  virtual iDatabaseSession open() const = 0;
+  virtual const Capabilities getCapabilities() const = 0;
+};
+
 };
