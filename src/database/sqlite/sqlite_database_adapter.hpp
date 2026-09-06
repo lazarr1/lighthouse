@@ -6,6 +6,7 @@
 #include "result.hpp"
 
 #include <filesystem>
+#include <memory>
 #include <sqlite3.h>
 
 struct sqlite3;
