@@ -2,6 +2,7 @@
 
 #include <optional>
 
+namespace db {
 enum class SupportLevel {
     Unsupported,
     Native,
@@ -32,4 +33,5 @@ struct Capabilities {
 
     SchemaCapabilities schema;
     ConcurrencyCapabilities concurrency;
+};
 };

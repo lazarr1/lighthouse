@@ -1,10 +1,9 @@
 #pragma once
 
 #include "capabilities.hpp"
+#include "i_database_session.hpp"
 
 namespace db {
-
-struct iDatabaseSession;
 
 class iDatabaseAdapter {
   virtual iDatabaseSession open() const = 0;
