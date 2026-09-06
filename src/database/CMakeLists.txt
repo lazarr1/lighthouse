@@ -31,6 +31,8 @@ lighthouse_set_project_warnings(db_engine_lib)
 target_sources(db_engine_lib
   PRIVATE
     src/test.cpp
+    sqlite/sqlite_database_adapter.cpp
+    sqlite/sqlite_database_session.cpp
 
   PUBLIC
     FILE_SET HEADERS
@@ -49,7 +51,7 @@ target_link_libraries(db_engine_lib
   PUBLIC
     db_engine_contracts
   PRIVATE
-    SQLite3::SQLite3
+    SQLite::SQLite3
 )
 
 set_target_properties(db_engine_lib PROPERTIES

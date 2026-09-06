@@ -8,11 +8,13 @@
 namespace db {
 
 enum class DbErrorCode {
+  FailedToOpenDatabase,
   NotImplemented
 };
 
 struct DbError {
   DbErrorCode ec;
+  int nativeEc;
   std::string message;
 };
 
