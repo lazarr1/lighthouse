@@ -2,24 +2,16 @@
 
 #include <variant>
 
-#include "result.hpp"
 #include "query.hpp"
-
+#include "result.hpp"
 
 namespace db {
-enum class TransactionMode {
-  ReadOnly,
-  ReadWrite
-};
+enum class TransactionMode { ReadOnly, ReadWrite };
 
-using DbValue = std::variant<
-    std::monostate, // SQL NULL
-    std::string,
-    std::int64_t,
-    double,
-    bool
-    // Timestamp
->;
+using DbValue = std::variant<std::monostate, // SQL NULL
+                             std::string, std::int64_t, double, bool
+                             // Timestamp
+                             >;
 
 class iDatabaseSession {
 
@@ -30,4 +22,4 @@ class iDatabaseSession {
   // void applySchema(plan);
 };
 
-};
+}; // namespace db

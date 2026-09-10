@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 4.4)
 
 project(db_engine)
 
@@ -51,7 +51,7 @@ target_link_libraries(db_engine_lib
   PUBLIC
     db_engine_contracts
   PRIVATE
-    SQLite::SQLite3
+    SQLite3::SQLite3
 )
 
 set_target_properties(db_engine_lib PROPERTIES

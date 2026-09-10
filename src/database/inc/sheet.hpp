@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include "value.hpp"
@@ -31,13 +31,13 @@ struct Column {
   columnId id;
   std::string displayName;
   std::string physicalName;
-  ColumnType type; 
+  ColumnType type;
   uint32_t displayOrder;
 };
 
 struct row {
-    rowId id;
-    std::vector<value> values;
+  rowId id;
+  std::vector<value> values;
 };
 
-}; //namespace db
+}; // namespace db

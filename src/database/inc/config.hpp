@@ -2,10 +2,6 @@
 
 namespace db {
 
-enum class OpenMode {
-    ReadOnly,
-    ReadWrite,
-    ReadWriteCreate
-};
+enum class OpenMode { ReadOnly, ReadWrite, ReadWriteCreate };
 
 };

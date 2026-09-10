@@ -1,27 +1,21 @@
 #pragma once
 
+#include <expected>
 #include <future>
 #include <string>
-#include <expected>
-
 
 namespace db {
 
-enum class DbErrorCode {
-  FailedToOpenDatabase,
-  NotImplemented
-};
+enum class DbErrorCode { FailedToOpenDatabase, NotImplemented };
 
 struct DbError {
   DbErrorCode ec;
-  int nativeEc;
+  int nativeErrorCode;
   std::string message;
 };
 
-template<typename T>
-using Result = std::expected<T, DbError>;
+template <typename T> using Result = std::expected<T, DbError>;
 
-template<typename T>
-using AsyncResult = std::future<Result<T>>;
+template <typename T> using AsyncResult = std::future<Result<T>>;
 
-};
+}; // namespace db

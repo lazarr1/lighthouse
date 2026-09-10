@@ -11,4 +11,4 @@ class iDatabaseAdapter {
   virtual const Capabilities getCapabilities() const = 0;
 };
 
-};
+}; // namespace db
