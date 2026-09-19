@@ -89,19 +89,11 @@ add_dependencies(
 )
 
 lighthouse_add_gtest(
-  lighthouse_integration_tests
-  integration
-  integration/database/sqlite/sqlite_database_driver_test.cpp
+  lighthouse_unit_tests
+  unit
+  unit/database/database_api_test.cpp
 )
-target_link_libraries(lighthouse_integration_tests PRIVATE db_engine_lib)
-
-# When a unit-test is added uncomment this line
-# lighthouse_add_gtest(
-#   lighthouse_unit_tests
-#   unit
-#   unit/database/your_real_unit_test.cpp
-# )
-# target_link_libraries(lighthouse_unit_tests PRIVATE lighthouse_test_support)
+target_link_libraries(lighthouse_unit_tests PRIVATE lighthouse_test_support)
 
 # convenience target that automatically runs the tests as part of build
 add_custom_target(
@@ -113,7 +105,7 @@ add_custom_target(
     --output-on-failure
   DEPENDS
     lighthouse_public_header_tests
-    lighthouse_integration_tests
+    lighthouse_unit_tests
   USES_TERMINAL
   VERBATIM
 )
@@ -144,7 +136,7 @@ if(LIGHTHOUSE_ENABLE_COVERAGE)
       -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/MergeCoverageProfiles.cmake"
     COMMAND
       ${LIGHTHOUSE_LLVM_COV} show
-      "$<TARGET_FILE:lighthouse_integration_tests>"
+      "$<TARGET_FILE:lighthouse_unit_tests>"
       "-instr-profile=${indexed_profile}"
       "-include-filename-regex=^${PROJECT_SOURCE_DIR}/src/"
       -format=html
@@ -152,14 +144,14 @@ if(LIGHTHOUSE_ENABLE_COVERAGE)
       "-output-dir=${report_directory}/html"
     COMMAND
       ${LIGHTHOUSE_LLVM_COV} report
-      "$<TARGET_FILE:lighthouse_integration_tests>"
+      "$<TARGET_FILE:lighthouse_unit_tests>"
       "-instr-profile=${indexed_profile}"
       "-include-filename-regex=^${PROJECT_SOURCE_DIR}/src/"
     COMMAND
       ${CMAKE_COMMAND} -E echo
       "Coverage report: ${report_directory}/html/index.html"
     DEPENDS
-      lighthouse_integration_tests
+      lighthouse_unit_tests
     USES_TERMINAL
     VERBATIM
   )

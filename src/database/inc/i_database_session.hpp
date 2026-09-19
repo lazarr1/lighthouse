@@ -17,7 +17,7 @@ class iDatabaseSession {
 
   virtual Result<void> beginTransaction(TransactionMode mode) = 0;
   virtual Result<void> commit() = 0;
-  Result<void> rollback();
+  virtual Result<void> rollback() = 0;
   // void applySchema(plan);
 };
 

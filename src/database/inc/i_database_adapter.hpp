@@ -7,6 +7,9 @@
 namespace db {
 
 class iDatabaseAdapter {
+ public:
+  virtual ~iDatabaseAdapter() = default;
+
   virtual Result<std::unique_ptr<iDatabaseSession>> open() const = 0;
   virtual const Capabilities getCapabilities() const = 0;
 };

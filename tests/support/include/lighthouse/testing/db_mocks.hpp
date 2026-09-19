@@ -4,32 +4,25 @@
 
 #include <gmock/gmock.h>
 
-#include <connection.hpp>
-#include <database.hpp>
-#include <databasedriver.hpp>
-#include <result.hpp>
+#include <i_database_adapter.hpp>
+#include <i_database_session.hpp>
 
 namespace lighthouse::testing {
 
-class MockConnection final : public ::db::IConnection {
-public:
-  MOCK_METHOD(bool, isHealthy, (), (const, override));
-  MOCK_METHOD(void, close, (), (override));
+class MockDatabaseSession final : public ::db::iDatabaseSession {
+ public:
+  MOCK_METHOD(::db::Result<void>, beginTransaction,
+              (::db::TransactionMode mode), (override));
+  MOCK_METHOD(::db::Result<void>, commit, (), (override));
+  MOCK_METHOD(::db::Result<void>, rollback, (), (override));
 };
 
-class MockDatabase final : public ::db::IDatabase {
-public:
-  using ConnectResult = ::db::Result<std::unique_ptr<::db::IConnection>>;
+class MockDatabaseAdapter final : public ::db::iDatabaseAdapter {
+ public:
+  using OpenResult = ::db::Result<std::unique_ptr<::db::iDatabaseSession>>;
 
-  MOCK_METHOD(ConnectResult, connect, (), (override));
-};
-
-class MockDatabaseDriver final : public ::db::IDatabaseDriver {
-public:
-  using OpenResult = ::db::Result<std::unique_ptr<::db::IDatabase>>;
-
-  MOCK_METHOD(OpenResult, open, (const ::db::DatabaseConfig &config),
-              (override));
+  MOCK_METHOD(OpenResult, open, (), (const, override));
+  MOCK_METHOD(const ::db::Capabilities, getCapabilities, (), (const, override));
 };
 
 } // namespace lighthouse::testing

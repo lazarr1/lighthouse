@@ -32,7 +32,7 @@ struct SqliteConfig {
   SQLiteDurability durability = SQLiteDurability::Full;
 };
 
-class SqliteDatabaseAdapter final : iDatabaseAdapter {
+class SqliteDatabaseAdapter final : public iDatabaseAdapter {
 public:
   explicit SqliteDatabaseAdapter(const SqliteConfig conf);
 

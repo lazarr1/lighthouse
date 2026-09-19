@@ -11,9 +11,9 @@ public:
   explicit SqliteDatabaseSession(SqliteHandle db);
 
   // TODO: transactions with savepoints?
-  Result<void> beginTransaction(TransactionMode mode);
-  Result<void> commit();
-  Result<void> rollback();
+  Result<void> beginTransaction(TransactionMode mode) override;
+  Result<void> commit() override;
+  Result<void> rollback() override;
 
   // virtual AsyncResult<QueryPage> query(QuerySpec spec) = 0;
   // virtual AsyncResult<CommandResult> execute(Command cmd) = 0;
