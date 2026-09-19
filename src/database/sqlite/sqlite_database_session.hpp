@@ -10,15 +10,16 @@ class SqliteDatabaseSession : public iDatabaseSession {
 public:
   explicit SqliteDatabaseSession(SqliteHandle db);
 
-  virtual AsyncResult<QueryPage> query(QuerySpec spec) = 0;
-  virtual AsyncResult<CommandResult> execute(Command cmd) = 0;
+  DbError beginTransaction(TransactionMode mode);
 
-  void beginTransaction(TransactionMode mode);
-  void commit();
-  void rollback();
+  // virtual AsyncResult<QueryPage> query(QuerySpec spec) = 0;
+  // virtual AsyncResult<CommandResult> execute(Command cmd) = 0;
+  // void commit();
+  // void rollback();
 
 private:
   SqliteHandle db_;
+  TransactionMode transactionMode_;
 };
 
 }; // namespace db

@@ -10,13 +10,14 @@ struct CommandResult;
 struct Command;
 
 class iDatabaseSession {
+  public:
+  virtual ~iDatabaseSession() = default;
+  // virtual AsyncResult<QueryPage> query(QuerySpec spec) = 0;
+  // virtual AsyncResult<CommandResult> execute(Command cmd) = 0;
 
-  virtual AsyncResult<QueryPage> query(QuerySpec spec) = 0;
-  virtual AsyncResult<CommandResult> execute(Command cmd) = 0;
-
-  virtual void beginTransaction(TransactionMode mode) = 0;
-  virtual void commit() = 0;
-  virtual void rollback() = 0;
+  virtual DbError beginTransaction(TransactionMode mode) = 0;
+  // virtual void commit() = 0;
+  // virtual void rollback() = 0;
   // void applySchema(plan);
 };
 

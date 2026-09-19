@@ -7,6 +7,7 @@
 
 int main(void) {
   db::SqliteDatabaseAdapter test({.path = "test.db"}); 
+  auto db = test.open();
 
   std::println("test: {:p}", static_cast<const void *>(&test));
   return 1;

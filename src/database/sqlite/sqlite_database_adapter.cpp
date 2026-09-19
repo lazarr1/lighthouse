@@ -21,13 +21,11 @@ Result<std::unique_ptr<iDatabaseSession>> SqliteDatabaseAdapter::open() const {
 
   if (result != SQLITE_OK) {
     return std::unexpected(
-        DbError{.ec = DbErrorCode::FailedToOpenDatabase,
-                .nativeErrorCode = result,
-                .message = db ? sqlite3_errmsg(db) : sqlite3_errstr(result)});
+        DbError(DbErrorCode::FailedToOpenDatabase, result, 
+          db ? sqlite3_errmsg(db) : sqlite3_errstr(result)));
   }
 
-  return std::make_unique<iDatabaseSession>(
-      SqliteDatabaseSession(std::move(dbHndlr)));
+  return std::make_unique<SqliteDatabaseSession>(std::move(dbHndlr));
 }
 
 const Capabilities SqliteDatabaseAdapter::getCapabilities() const {
