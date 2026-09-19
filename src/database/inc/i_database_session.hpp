@@ -15,9 +15,9 @@ class iDatabaseSession {
   // virtual AsyncResult<QueryPage> query(QuerySpec spec) = 0;
   // virtual AsyncResult<CommandResult> execute(Command cmd) = 0;
 
-  virtual DbError beginTransaction(TransactionMode mode) = 0;
-  // virtual void commit() = 0;
-  // virtual void rollback() = 0;
+  virtual Result<void> beginTransaction(TransactionMode mode) = 0;
+  virtual Result<void> commit() = 0;
+  Result<void> rollback();
   // void applySchema(plan);
 };
 

@@ -1,12 +1,9 @@
 #include "result.hpp"
-#include <bit>
-
-
 
 namespace db { 
 
-DbError::DbError(const DbErrorCode ec) 
-  : ec(ec), isNativeError(false)
+DbError::DbError(const DbErrorCode ec)
+  : ec(ec), isNativeError(false), nativeErrorCode(std::nullopt), message(std::nullopt)
 {
 
 }

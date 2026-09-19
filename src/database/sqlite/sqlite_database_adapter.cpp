@@ -14,9 +14,11 @@ SqliteDatabaseAdapter::SqliteDatabaseAdapter(const SqliteConfig conf)
 Result<std::unique_ptr<iDatabaseSession>> SqliteDatabaseAdapter::open() const {
   sqlite3 *db;
 
+  const int openModeFlags = getOpenModeFlags();
+
   // Initialised an immediately pass into smart pointer. sqlite3_open can fail
   // and still return a non-null handle.
-  const int result = sqlite3_open(conf.path.c_str(), &db);
+  const int result = sqlite3_open_v2(conf.path.c_str(), &db, openModeFlags, nullptr);
   SqliteHandle dbHndlr{db};
 
   if (result != SQLITE_OK) {
@@ -46,6 +48,19 @@ const Capabilities SqliteDatabaseAdapter::getCapabilities() const {
                       .readsDuringWrite = false,
                       .maxConcurrentWriters = 0},
   };
+}
+
+int SqliteDatabaseAdapter::getOpenModeFlags() const {
+  switch (conf.openMode) {
+    case OpenMode::ReadOnly:
+      return SQLITE_OPEN_READONLY;
+    case OpenMode::ReadWrite:
+      return SQLITE_OPEN_READWRITE;
+    case OpenMode::ReadWriteCreate:
+      return SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
+    default:
+      return SQLITE_OPEN_READONLY;
+  }
 }
 
 } // namespace db

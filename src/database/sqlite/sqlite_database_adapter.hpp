@@ -25,6 +25,7 @@ struct SqliteCloser {
 
 using SqliteHandle = std::unique_ptr<sqlite3, SqliteCloser>;
 
+
 struct SqliteConfig {
   std::filesystem::path path;
   OpenMode openMode = OpenMode::ReadWriteCreate;
@@ -40,6 +41,7 @@ public:
 
 private:
   SqliteConfig conf;
+  int getOpenModeFlags() const;
 };
 
 }; // namespace db
