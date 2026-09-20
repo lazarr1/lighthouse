@@ -9,7 +9,7 @@ SqliteDatabaseSession::SqliteDatabaseSession(SqliteHandle db)
     : db_(std::move(db)), transactionMode_(TransactionMode::ReadOnly), transactionStarted_(false) {}
 
 Result<void> SqliteDatabaseSession::beginTransaction(TransactionMode mode) {
-  if (!transactionStarted_) {
+  if (transactionStarted_) {
     return std::unexpected(DbError(DbErrorCode::TransactionAlreadyStarted));
   }
 

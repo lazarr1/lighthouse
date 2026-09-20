@@ -93,7 +93,7 @@ lighthouse_add_gtest(
   unit
   unit/database/database_api_test.cpp
 )
-target_link_libraries(lighthouse_unit_tests PRIVATE lighthouse_test_support)
+target_link_libraries(lighthouse_unit_tests PRIVATE lighthouse_test_support db_engine_lib)
 
 # convenience target that automatically runs the tests as part of build
 add_custom_target(
