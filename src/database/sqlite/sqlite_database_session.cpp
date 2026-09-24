@@ -1,12 +1,13 @@
 #include <sqlite3.h>
 
-#include "sqlite_database_session.hpp"
 #include "i_database_session.hpp"
+#include "sqlite_database_session.hpp"
 
 namespace db {
 
 SqliteDatabaseSession::SqliteDatabaseSession(SqliteHandle db)
-    : db_(std::move(db)), transactionMode_(TransactionMode::ReadOnly), transactionStarted_(false) {}
+    : db_(std::move(db)), transactionMode_(TransactionMode::ReadOnly),
+      transactionStarted_(false) {}
 
 Result<void> SqliteDatabaseSession::beginTransaction(TransactionMode mode) {
   if (transactionStarted_) {
@@ -15,24 +16,21 @@ Result<void> SqliteDatabaseSession::beginTransaction(TransactionMode mode) {
 
   int result = 0;
   switch (mode) {
-    case(TransactionMode::ReadOnly) : {
-      result = sqlite3_exec(db_.get(), "BEGIN DEFERRED;", NULL, NULL, NULL);
-      break;
-    };
-    case(TransactionMode::ReadWrite) : {
-      result = sqlite3_exec(db_.get(), "BEGIN IMMEDIATE;", NULL, NULL, NULL);
-      break;
-    };
-    default:
-      return std::unexpected(DbError(DbErrorCode::UnknownTransactionType));
+  case (TransactionMode::ReadOnly): {
+    result = sqlite3_exec(db_.get(), "BEGIN DEFERRED;", NULL, NULL, NULL);
+    break;
+  };
+  case (TransactionMode::ReadWrite): {
+    result = sqlite3_exec(db_.get(), "BEGIN IMMEDIATE;", NULL, NULL, NULL);
+    break;
+  };
+  default:
+    return std::unexpected(DbError(DbErrorCode::UnknownTransactionType));
   };
 
   if (result != SQLITE_OK) {
-    return std::unexpected(DbError(
-              DbErrorCode::UnableToStartTransaction, 
-              result, 
-              sqlite3_errmsg(db_.get()
-           )));
+    return std::unexpected(DbError(DbErrorCode::UnableToStartTransaction,
+                                   result, sqlite3_errmsg(db_.get())));
   }
 
   transactionMode_ = mode;
@@ -47,11 +45,8 @@ Result<void> SqliteDatabaseSession::commit() {
 
   const int result = sqlite3_exec(db_.get(), "COMMIT", NULL, NULL, NULL);
   if (result != SQLITE_OK) {
-    return std::unexpected(DbError(
-              DbErrorCode::UnableToStartTransaction, 
-              result, 
-              sqlite3_errmsg(db_.get()
-           )));
+    return std::unexpected(DbError(DbErrorCode::UnableToStartTransaction,
+                                   result, sqlite3_errmsg(db_.get())));
   }
 
   transactionStarted_ = false;
@@ -67,17 +62,23 @@ Result<void> SqliteDatabaseSession::rollback() {
   // TODO: transactions with savepoints
   const int result = sqlite3_exec(db_.get(), "ROLLBACK", NULL, NULL, NULL);
   if (result != SQLITE_OK) {
-    return std::unexpected(DbError(
-              DbErrorCode::UnableToStartTransaction, 
-              result, 
-              sqlite3_errmsg(db_.get()
-           )));
+    return std::unexpected(DbError(DbErrorCode::UnableToStartTransaction,
+                                   result, sqlite3_errmsg(db_.get())));
   }
 
   transactionStarted_ = false;
 
-
   return {};
+}
+
+AsyncResult<std::optional<QueryPage>>
+SqliteDatabaseSession::execute(Command cmd) {
+
+  std::promise<Result<std::optional<QueryPage>>> promise;
+
+  promise.set_value(std::nullopt); // Set the value to empty
+
+  return promise.get_future();
 }
 
 // AsyncResult<QueryPage> SqliteDatabaseSession::query(QuerySpec spec) {}

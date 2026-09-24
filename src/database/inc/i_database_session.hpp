@@ -6,14 +6,13 @@
 namespace db {
 enum class TransactionMode { ReadOnly, ReadWrite };
 
-struct CommandResult;
-struct Command;
-
 class iDatabaseSession {
-  public:
+public:
   virtual ~iDatabaseSession() = default;
   // virtual AsyncResult<QueryPage> query(QuerySpec spec) = 0;
-  // virtual AsyncResult<CommandResult> execute(Command cmd) = 0;
+
+  // For now just let user execute whatever they want on SQL side.
+  virtual AsyncResult<std::optional<QueryPage>> execute(Command cmd) = 0;
 
   virtual Result<void> beginTransaction(TransactionMode mode) = 0;
   virtual Result<void> commit() = 0;

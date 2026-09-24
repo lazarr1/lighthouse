@@ -14,11 +14,14 @@ struct QueryPage {
   std::optional<std::string> next;
 };
 
-struct QuerySpec {
-  sheetId sheet;
-  std::vector<columnId> columns;
-  std::uint32_t limit = 100;
+struct Command {
+  // sheetId sheet;
+  // std::vector<columnId> columns;
+  // uint32_t limit = 100;
 
-  std::optional<std::string> continuation;
+  // For now let users send whatever commands
+  // Limits probably have to start being enforced at some point.
+  std::string command;
+  // std::optional<std::string> continuation;
 };
 }; // namespace db
