@@ -13,6 +13,7 @@ enum class DbErrorCode {
 
   FailedToOpenDatabase,
   UnkownOpenType,
+  CommandFailed,
 
   UnableToStartTransaction,
   UnknownTransactionType, 

@@ -83,4 +83,36 @@ TEST(SqliteDatabaseSessionTest, ResetsTransactionStateAfterCommitAndRollback) {
   EXPECT_TRUE(session->rollback().has_value());
 }
 
+TEST(SqliteDatabaseSessionTest, ExecutesCommandsAndReturnsResultRows) {
+  auto session = openInMemorySession();
+  ASSERT_NE(session, nullptr);
+
+  EXPECT_TRUE(session->execute({.command = "CREATE TABLE data (id INTEGER, name TEXT);"})
+                  .get()
+                  .has_value());
+  EXPECT_TRUE(session->execute({.command = "INSERT INTO data VALUES (7, 'Ada');"})
+                  .get()
+                  .has_value());
+
+  const auto result = session->execute({.command = "SELECT id, name FROM data;"}).get();
+  ASSERT_TRUE(result.has_value());
+  ASSERT_TRUE(result->has_value());
+  const auto &page = **result;
+  ASSERT_EQ(page.columns.size(), 2U);
+  ASSERT_EQ(page.rows.size(), 1U);
+  EXPECT_EQ(std::get<std::int64_t>(page.rows[0].values[0]), 7);
+  EXPECT_EQ(std::get<std::string>(page.rows[0].values[1]), "Ada");
+}
+
+TEST(SqliteDatabaseSessionTest, ReportsInvalidCommands) {
+  auto session = openInMemorySession();
+  ASSERT_NE(session, nullptr);
+
+  const auto result = session->execute({.command = "not valid sql"}).get();
+
+  ASSERT_FALSE(result.has_value());
+  EXPECT_EQ(result.error().ec, db::DbErrorCode::CommandFailed);
+  EXPECT_TRUE(result.error().isNativeError);
+}
+
 } // namespace

@@ -1,9 +1,41 @@
 #include <sqlite3.h>
 
+#include <memory>
+
 #include "i_database_session.hpp"
 #include "sqlite_database_session.hpp"
 
 namespace db {
+namespace {
+
+struct SqliteStatementCloser {
+  void operator()(sqlite3_stmt *statement) const noexcept {
+    if (statement) {
+      sqlite3_finalize(statement);
+    }
+  }
+};
+
+using SqliteStatement = std::unique_ptr<sqlite3_stmt, SqliteStatementCloser>;
+
+Result<value> readColumn(sqlite3_stmt *statement, const int column) {
+  switch (sqlite3_column_type(statement, column)) {
+  case SQLITE_NULL:
+    return value{std::monostate{}};
+  case SQLITE_INTEGER:
+    return value{static_cast<std::int64_t>(sqlite3_column_int64(statement, column))};
+  case SQLITE_FLOAT:
+    return value{sqlite3_column_double(statement, column)};
+  case SQLITE_TEXT: {
+    const auto *text = reinterpret_cast<const char *>(sqlite3_column_text(statement, column));
+    return value{std::string(text ? text : "")};
+  }
+  default:
+    return std::unexpected(DbError(DbErrorCode::NotImplemented));
+  }
+}
+
+} // namespace
 
 SqliteDatabaseSession::SqliteDatabaseSession(SqliteHandle db)
     : db_(std::move(db)), transactionMode_(TransactionMode::ReadOnly),
@@ -73,10 +105,59 @@ Result<void> SqliteDatabaseSession::rollback() {
 
 AsyncResult<std::optional<QueryPage>>
 SqliteDatabaseSession::execute(Command cmd) {
-
   std::promise<Result<std::optional<QueryPage>>> promise;
 
-  promise.set_value(std::nullopt); // Set the value to empty
+  sqlite3_stmt *rawStatement = nullptr;
+  const int prepareResult =
+      sqlite3_prepare_v2(db_.get(), cmd.command.c_str(), -1, &rawStatement, nullptr);
+  SqliteStatement statement(rawStatement);
+
+  if (prepareResult != SQLITE_OK) {
+    promise.set_value(std::unexpected(DbError(DbErrorCode::CommandFailed, prepareResult,
+                                              sqlite3_errmsg(db_.get()))));
+    return promise.get_future();
+  }
+
+  if (!statement) {
+    promise.set_value(std::nullopt);
+    return promise.get_future();
+  }
+
+  const int columnCount = sqlite3_column_count(statement.get());
+  std::optional<QueryPage> page;
+  if (columnCount > 0) {
+    page.emplace();
+    page->columns.reserve(static_cast<std::size_t>(columnCount));
+    for (int column = 0; column < columnCount; ++column) {
+      page->columns.push_back(static_cast<columnId>(column));
+    }
+  }
+
+  rowId resultRowId = 0;
+  for (;;) {
+    const int stepResult = sqlite3_step(statement.get());
+    if (stepResult == SQLITE_DONE) {
+      promise.set_value(std::move(page));
+      break;
+    }
+    if (stepResult != SQLITE_ROW) {
+      promise.set_value(std::unexpected(DbError(DbErrorCode::CommandFailed, stepResult,
+                                                sqlite3_errmsg(db_.get()))));
+      break;
+    }
+
+    row resultRow{.id = resultRowId++, .values = {}};
+    resultRow.values.reserve(static_cast<std::size_t>(columnCount));
+    for (int column = 0; column < columnCount; ++column) {
+      auto columnValue = readColumn(statement.get(), column);
+      if (!columnValue) {
+        promise.set_value(std::unexpected(columnValue.error()));
+        return promise.get_future();
+      }
+      resultRow.values.push_back(std::move(*columnValue));
+    }
+    page->rows.push_back(std::move(resultRow));
+  }
 
   return promise.get_future();
 }
