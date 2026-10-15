@@ -1,0 +1,4556 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Lighthouse API",
+    "version": "1.0.0-draft",
+    "description": "Contract required by the Lighthouse web client. Generated from frontend/src/api/contract — edit the Zod schemas, not this file."
+  },
+  "servers": [
+    {
+      "url": "https://api.lighthouse.example"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Session"
+    },
+    {
+      "name": "Datasets"
+    },
+    {
+      "name": "Records"
+    },
+    {
+      "name": "Charts"
+    },
+    {
+      "name": "Dashboards"
+    },
+    {
+      "name": "Actions"
+    },
+    {
+      "name": "Runs"
+    },
+    {
+      "name": "Uploads"
+    }
+  ],
+  "paths": {
+    "/v1/session": {
+      "get": {
+        "operationId": "getSession",
+        "tags": [
+          "Session"
+        ],
+        "summary": "Current user and the workspaces they can access.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workspaces/{workspaceId}": {
+      "get": {
+        "operationId": "getWorkspace",
+        "tags": [
+          "Session"
+        ],
+        "summary": "Workspace with its dataset summaries and default dashboard.",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workspace"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/datasets/{datasetId}": {
+      "get": {
+        "operationId": "getDataset",
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Dataset metadata including its current schema (fields).",
+        "parameters": [
+          {
+            "name": "datasetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dataset"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/datasets/{datasetId}/schema-changes/preview": {
+      "post": {
+        "operationId": "previewSchemaChange",
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Impact assessment for a schema change: conversions and affected charts/actions. No side effects.",
+        "parameters": [
+          {
+            "name": "datasetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemaImpact"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, revision_conflict, validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedSchemaVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "changes": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/SchemaChangeInput"
+                    }
+                  }
+                },
+                "required": [
+                  "expectedSchemaVersion",
+                  "changes"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/datasets/{datasetId}/schema-changes": {
+      "post": {
+        "operationId": "applySchemaChange",
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Publish a schema change. Fails if the schema moved since `expectedSchemaVersion`.",
+        "parameters": [
+          {
+            "name": "datasetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Unique per logical operation; retries reuse it.",
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dataset": {
+                      "$ref": "#/components/schemas/Dataset"
+                    },
+                    "changeSetId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  },
+                  "required": [
+                    "dataset",
+                    "changeSetId"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, revision_conflict, validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedSchemaVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "changes": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/SchemaChangeInput"
+                    }
+                  }
+                },
+                "required": [
+                  "expectedSchemaVersion",
+                  "changes"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/datasets/{datasetId}/records/query": {
+      "post": {
+        "operationId": "queryRecords",
+        "tags": [
+          "Records"
+        ],
+        "summary": "Search, filter, sort and page through records (cursor pagination).",
+        "parameters": [
+          {
+            "name": "datasetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/DataRecord"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "totalCount": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "dataRevision": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor",
+                    "totalCount",
+                    "dataRevision"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "filters": {
+                    "default": [],
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FilterInput"
+                    }
+                  },
+                  "sort": {
+                    "default": [],
+                    "maxItems": 5,
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/RecordSort"
+                    }
+                  },
+                  "onlyWithIssues": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "cursor": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "limit": {
+                    "default": 100,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/datasets/{datasetId}/records/{recordId}": {
+      "get": {
+        "operationId": "getRecord",
+        "tags": [
+          "Records"
+        ],
+        "summary": "A single record.",
+        "parameters": [
+          {
+            "name": "datasetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataRecord"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateRecord",
+        "tags": [
+          "Records"
+        ],
+        "summary": "Partially update a record. Requires `If-Match` with the revision being edited.",
+        "parameters": [
+          {
+            "name": "datasetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "description": "Quoted revision being edited, e.g. \"3\".",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "record": {
+                      "$ref": "#/components/schemas/DataRecord"
+                    },
+                    "changeSetId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  },
+                  "required": [
+                    "record",
+                    "changeSetId"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, revision_conflict, validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "values": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/CellValue"
+                    }
+                  }
+                },
+                "required": [
+                  "values"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteRecord",
+        "tags": [
+          "Records"
+        ],
+        "summary": "Delete a record (reversible via its change set).",
+        "parameters": [
+          {
+            "name": "datasetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "description": "Quoted revision being edited, e.g. \"3\".",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "changeSetId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  },
+                  "required": [
+                    "changeSetId"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, revision_conflict.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/datasets/{datasetId}/records": {
+      "post": {
+        "operationId": "createRecord",
+        "tags": [
+          "Records"
+        ],
+        "summary": "Create a record.",
+        "parameters": [
+          {
+            "name": "datasetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Unique per logical operation; retries reuse it.",
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "record": {
+                      "$ref": "#/components/schemas/DataRecord"
+                    },
+                    "changeSetId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  },
+                  "required": [
+                    "record",
+                    "changeSetId"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "values": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/CellValue"
+                    }
+                  }
+                },
+                "required": [
+                  "values"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/change-sets/{changeSetId}/revert": {
+      "post": {
+        "operationId": "revertChangeSet",
+        "tags": [
+          "Records"
+        ],
+        "summary": "Undo a change set (record edit, delete, action commit, schema change).",
+        "parameters": [
+          {
+            "name": "changeSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Unique per logical operation; retries reuse it.",
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "changeSetId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "affectedRecordIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      }
+                    }
+                  },
+                  "required": [
+                    "changeSetId",
+                    "affectedRecordIds"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, revision_conflict.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/chart-drafts": {
+      "post": {
+        "operationId": "createChartDraft",
+        "tags": [
+          "Charts"
+        ],
+        "summary": "Ask the AI for a chart. Returns a validated definition plus a bounded preview.",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChartDraft"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, validation_failed, schema_incompatible, quota_exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "datasetId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "refineDraftId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "datasetId",
+                  "prompt"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboards/{dashboardId}": {
+      "get": {
+        "operationId": "getDashboard",
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "Dashboard with widgets and per-breakpoint layouts.",
+        "parameters": [
+          {
+            "name": "dashboardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dashboard"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboards/{dashboardId}/layout": {
+      "put": {
+        "operationId": "updateDashboardLayout",
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "Replace layouts. Does not create new chart versions.",
+        "parameters": [
+          {
+            "name": "dashboardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dashboard"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, revision_conflict, validation_failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "layouts": {
+                    "$ref": "#/components/schemas/LayoutsInput"
+                  }
+                },
+                "required": [
+                  "expectedVersion",
+                  "layouts"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboards/{dashboardId}/widgets": {
+      "post": {
+        "operationId": "addWidget",
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "Publish a chart draft as an immutable version and place it on the dashboard.",
+        "parameters": [
+          {
+            "name": "dashboardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Unique per logical operation; retries reuse it.",
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dashboard": {
+                      "$ref": "#/components/schemas/Dashboard"
+                    },
+                    "widgetId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  },
+                  "required": [
+                    "dashboard",
+                    "widgetId"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "chartDraftId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "chartDraftId"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboards/{dashboardId}/widgets/{widgetId}/duplicate": {
+      "post": {
+        "operationId": "duplicateWidget",
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "Copy a widget (shares the chart version).",
+        "parameters": [
+          {
+            "name": "dashboardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "widgetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Unique per logical operation; retries reuse it.",
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dashboard": {
+                      "$ref": "#/components/schemas/Dashboard"
+                    },
+                    "widgetId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  },
+                  "required": [
+                    "dashboard",
+                    "widgetId"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboards/{dashboardId}/widgets/{widgetId}": {
+      "delete": {
+        "operationId": "deleteWidget",
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "Remove a widget (soft delete; restorable).",
+        "parameters": [
+          {
+            "name": "dashboardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "widgetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dashboard": {
+                      "$ref": "#/components/schemas/Dashboard"
+                    },
+                    "widgetId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  },
+                  "required": [
+                    "dashboard",
+                    "widgetId"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboards/{dashboardId}/widgets/{widgetId}/restore": {
+      "post": {
+        "operationId": "restoreWidget",
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "Undo a widget removal.",
+        "parameters": [
+          {
+            "name": "dashboardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "widgetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dashboard": {
+                      "$ref": "#/components/schemas/Dashboard"
+                    },
+                    "widgetId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  },
+                  "required": [
+                    "dashboard",
+                    "widgetId"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dashboards/{dashboardId}/widgets/{widgetId}/data": {
+      "get": {
+        "operationId": "getWidgetData",
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "Run the widget query. Cached by tenant + chart version + data revision + auth scope.",
+        "parameters": [
+          {
+            "name": "dashboardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "widgetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, schema_incompatible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workspaces/{workspaceId}/action-drafts": {
+      "post": {
+        "operationId": "createActionDraft",
+        "tags": [
+          "Actions"
+        ],
+        "summary": "Ask the AI to plan an action. Returns interpretation, steps and required permissions.",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionDraft"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, validation_failed, quota_exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000
+                  },
+                  "attachmentIds": {
+                    "default": [],
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  },
+                  "datasetId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "actionId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "prompt"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/action-drafts/{draftId}/dry-runs": {
+      "post": {
+        "operationId": "startDryRun",
+        "tags": [
+          "Actions"
+        ],
+        "summary": "Execute the draft against a read-only snapshot and stage proposed changes.",
+        "parameters": [
+          {
+            "name": "draftId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Unique per logical operation; retries reuse it.",
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Run"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/action-drafts/{draftId}/approve": {
+      "post": {
+        "operationId": "approveDraft",
+        "tags": [
+          "Actions"
+        ],
+        "summary": "Approve the exact draft hash, creating an action version. Optionally run it now.",
+        "parameters": [
+          {
+            "name": "draftId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Unique per logical operation; retries reuse it.",
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "$ref": "#/components/schemas/Action"
+                    },
+                    "run": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/Run"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "action",
+                    "run"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, approval_invalidated, forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hash": {
+                    "type": "string"
+                  },
+                  "dryRunId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "runNow": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "hash",
+                  "dryRunId",
+                  "runNow"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workspaces/{workspaceId}/actions": {
+      "get": {
+        "operationId": "listActions",
+        "tags": [
+          "Actions"
+        ],
+        "summary": "All approved actions in the workspace.",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Action"
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/actions/{actionId}": {
+      "get": {
+        "operationId": "getAction",
+        "tags": [
+          "Actions"
+        ],
+        "summary": "An action with its current approved version and schedule.",
+        "parameters": [
+          {
+            "name": "actionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Action"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateAction",
+        "tags": [
+          "Actions"
+        ],
+        "summary": "Pause or resume an action (acts as a per-action kill switch).",
+        "parameters": [
+          {
+            "name": "actionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Action"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "paused"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/actions/{actionId}/schedule": {
+      "put": {
+        "operationId": "setSchedule",
+        "tags": [
+          "Actions"
+        ],
+        "summary": "Create, change or disable the schedule. Enabling is a separate approval from the action itself.",
+        "parameters": [
+          {
+            "name": "actionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Action"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, validation_failed, forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cron": {
+                    "type": "string",
+                    "minLength": 9,
+                    "maxLength": 100
+                  },
+                  "timezone": {
+                    "type": "string"
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "cron",
+                  "timezone",
+                  "enabled"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/actions/{actionId}/runs": {
+      "post": {
+        "operationId": "startRun",
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Start a live run of the current approved version.",
+        "parameters": [
+          {
+            "name": "actionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Unique per logical operation; retries reuse it.",
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Run"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "listRuns",
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Run history, newest first.",
+        "parameters": [
+          {
+            "name": "actionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Run"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/runs/{runId}": {
+      "get": {
+        "operationId": "getRun",
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Run status, step progress and staged/committed changes.",
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Run"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/runs/{runId}/events": {
+      "get": {
+        "operationId": "streamRunEvents",
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Server-sent events: `run.updated` snapshots and `log` lines. Ends after a terminal status.",
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Server-sent event stream; each `data:` line is one JSON event.",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunEvent"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/runs/{runId}/cancel": {
+      "post": {
+        "operationId": "cancelRun",
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Cancel a queued or running run. Staged changes are discarded.",
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Run"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workspaces/{workspaceId}/uploads": {
+      "post": {
+        "operationId": "createUpload",
+        "tags": [
+          "Uploads"
+        ],
+        "summary": "Get a pre-signed URL to upload a file directly to quarantined object storage.",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "Unique per logical operation; retries reuse it.",
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadTicket"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found, validation_failed, quota_exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filename": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255
+                  },
+                  "contentType": {
+                    "type": "string",
+                    "enum": [
+                      "image/png",
+                      "image/jpeg",
+                      "image/webp",
+                      "image/heic",
+                      "application/pdf",
+                      "text/csv"
+                    ]
+                  },
+                  "size": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 20971520
+                  }
+                },
+                "required": [
+                  "filename",
+                  "contentType",
+                  "size"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/uploads/{uploadId}/complete": {
+      "post": {
+        "operationId": "completeUpload",
+        "tags": [
+          "Uploads"
+        ],
+        "summary": "Confirm the bytes were uploaded; triggers type verification and scanning.",
+        "parameters": [
+          {
+            "name": "uploadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Upload"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error. Possible codes include: unauthenticated, forbidden, not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Action": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "workspaceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "paused"
+            ]
+          },
+          "currentVersion": {
+            "$ref": "#/components/schemas/ActionVersion"
+          },
+          "schedule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Schedule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastRun": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "queued",
+                      "running",
+                      "succeeded",
+                      "failed",
+                      "cancelled"
+                    ]
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "dry_run",
+                      "live"
+                    ]
+                  },
+                  "trigger": {
+                    "type": "string",
+                    "enum": [
+                      "manual",
+                      "schedule",
+                      "approval"
+                    ]
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "finishedAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "status",
+                  "mode",
+                  "trigger",
+                  "createdAt",
+                  "finishedAt"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "workspaceId",
+          "name",
+          "description",
+          "status",
+          "currentVersion",
+          "schedule",
+          "lastRun",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ActionDraft": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "workspaceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "actionId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "attachmentIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "needs_input",
+              "rejected"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "interpretation": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanStep"
+            }
+          },
+          "manifest": {
+            "$ref": "#/components/schemas/ActionManifest"
+          },
+          "hash": {
+            "type": "string"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rejectionReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "workspaceId",
+          "actionId",
+          "prompt",
+          "attachmentIds",
+          "status",
+          "title",
+          "interpretation",
+          "steps",
+          "manifest",
+          "hash",
+          "questions",
+          "rejectionReason",
+          "createdAt"
+        ]
+      },
+      "ActionManifest": {
+        "type": "object",
+        "properties": {
+          "inputs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            }
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "maxRecordsWritten": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "timeoutSeconds": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "maxNetworkRequests": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "maxRecordsWritten",
+              "timeoutSeconds",
+              "maxNetworkRequests"
+            ]
+          }
+        },
+        "required": [
+          "inputs",
+          "outputs",
+          "permissions",
+          "limits"
+        ]
+      },
+      "ActionVersion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "version": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "hash": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanStep"
+            }
+          },
+          "manifest": {
+            "$ref": "#/components/schemas/ActionManifest"
+          },
+          "approvedBy": {
+            "type": "string"
+          },
+          "approvedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "hash",
+          "steps",
+          "manifest",
+          "approvedBy",
+          "approvedAt"
+        ]
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "$ref": "#/components/schemas/ErrorCode"
+              },
+              "message": {
+                "type": "string"
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "details": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "CellValue": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "ChartDefinition": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "bar",
+              "horizontalBar",
+              "line",
+              "area",
+              "donut",
+              "metric",
+              "table"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "subtitle": {
+            "default": "",
+            "type": "string",
+            "maxLength": 200
+          },
+          "query": {
+            "$ref": "#/components/schemas/QueryDefinition"
+          },
+          "encoding": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,39}$"
+              },
+              "value": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,39}$"
+              },
+              "series": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,39}$"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "format": {
+            "$ref": "#/components/schemas/ValueFormat"
+          },
+          "accessibilitySummary": {
+            "type": "string"
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "fieldDependencies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "subtitle",
+          "query",
+          "encoding",
+          "format",
+          "accessibilitySummary",
+          "schemaVersion",
+          "fieldDependencies"
+        ]
+      },
+      "ChartDraft": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "datasetId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/ChartDefinition"
+          },
+          "explanation": {
+            "type": "string"
+          },
+          "preview": {
+            "$ref": "#/components/schemas/QueryResult"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "datasetId",
+          "prompt",
+          "definition",
+          "explanation",
+          "preview",
+          "warnings",
+          "createdAt"
+        ]
+      },
+      "Choice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "grey",
+              "green",
+              "amber",
+              "red",
+              "blue",
+              "purple"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "color"
+        ]
+      },
+      "Dashboard": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "workspaceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "widgets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Widget"
+            }
+          },
+          "layouts": {
+            "$ref": "#/components/schemas/Layouts"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "workspaceId",
+          "name",
+          "version",
+          "widgets",
+          "layouts",
+          "updatedAt"
+        ]
+      },
+      "DataRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "values": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CellValue"
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecordIssue"
+            }
+          },
+          "source": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "manual",
+                  "import",
+                  "action",
+                  "image"
+                ]
+              },
+              "ref": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "ref",
+              "label"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "values",
+          "issues",
+          "source",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "Dataset": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "workspaceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "primaryFieldId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Field"
+            }
+          },
+          "recordCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "dataRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "health": {
+            "type": "object",
+            "properties": {
+              "score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "recordsNeedingReview": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "score",
+              "recordsNeedingReview"
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "workspaceId",
+          "name",
+          "description",
+          "primaryFieldId",
+          "fields",
+          "recordCount",
+          "schemaVersion",
+          "dataRevision",
+          "health",
+          "updatedAt"
+        ]
+      },
+      "DatasetSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "name": {
+            "type": "string"
+          },
+          "recordCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "recordCount"
+        ]
+      },
+      "ErrorCode": {
+        "type": "string",
+        "enum": [
+          "unauthenticated",
+          "forbidden",
+          "not_found",
+          "validation_failed",
+          "revision_conflict",
+          "approval_invalidated",
+          "schema_incompatible",
+          "quota_exceeded",
+          "rate_limited",
+          "unavailable",
+          "internal",
+          "contract_violation",
+          "network_error"
+        ]
+      },
+      "Field": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "type": {
+            "$ref": "#/components/schemas/FieldType"
+          },
+          "description": {
+            "default": "",
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "deprecated"
+            ]
+          },
+          "config": {
+            "$ref": "#/components/schemas/FieldConfig"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "description",
+          "required",
+          "status",
+          "config"
+        ]
+      },
+      "FieldConfig": {
+        "type": "object",
+        "properties": {
+          "choices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Choice"
+            }
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3
+          },
+          "decimals": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6
+          }
+        }
+      },
+      "FieldConfigInput": {
+        "type": "object",
+        "properties": {
+          "choices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Choice"
+            }
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3
+          },
+          "decimals": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6
+          }
+        }
+      },
+      "FieldType": {
+        "type": "string",
+        "enum": [
+          "text",
+          "longText",
+          "number",
+          "money",
+          "percent",
+          "date",
+          "datetime",
+          "boolean",
+          "singleSelect",
+          "multiSelect",
+          "url"
+        ]
+      },
+      "Filter": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "op": {
+            "type": "string",
+            "enum": [
+              "eq",
+              "neq",
+              "contains",
+              "gt",
+              "gte",
+              "lt",
+              "lte",
+              "in",
+              "isEmpty",
+              "isNotEmpty"
+            ]
+          },
+          "value": {
+            "$ref": "#/components/schemas/CellValue"
+          }
+        },
+        "required": [
+          "fieldId",
+          "op"
+        ]
+      },
+      "FilterInput": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "op": {
+            "type": "string",
+            "enum": [
+              "eq",
+              "neq",
+              "contains",
+              "gt",
+              "gte",
+              "lt",
+              "lte",
+              "in",
+              "isEmpty",
+              "isNotEmpty"
+            ]
+          },
+          "value": {
+            "$ref": "#/components/schemas/CellValue"
+          }
+        },
+        "required": [
+          "fieldId",
+          "op"
+        ]
+      },
+      "LayoutItem": {
+        "type": "object",
+        "properties": {
+          "i": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "x": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "y": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "w": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "h": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "i",
+          "x",
+          "y",
+          "w",
+          "h"
+        ]
+      },
+      "Layouts": {
+        "type": "object",
+        "properties": {
+          "lg": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LayoutItem"
+            }
+          },
+          "md": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LayoutItem"
+            }
+          },
+          "sm": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LayoutItem"
+            }
+          }
+        },
+        "required": [
+          "lg",
+          "md",
+          "sm"
+        ]
+      },
+      "LayoutsInput": {
+        "type": "object",
+        "properties": {
+          "lg": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LayoutItem"
+            }
+          },
+          "md": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LayoutItem"
+            }
+          },
+          "sm": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LayoutItem"
+            }
+          }
+        },
+        "required": [
+          "lg",
+          "md",
+          "sm"
+        ]
+      },
+      "Permission": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "read",
+              "write",
+              "network",
+              "secret"
+            ]
+          },
+          "target": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "target",
+          "description"
+        ]
+      },
+      "PlanStep": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fetch",
+              "parse",
+              "extract",
+              "ocr",
+              "transform",
+              "validate",
+              "dedupe",
+              "lookup",
+              "upsert",
+              "notify"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "detail"
+        ]
+      },
+      "ProposedChanges": {
+        "type": "object",
+        "properties": {
+          "datasetId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "inserts": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "updates": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "duplicatesSkipped": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "rejected": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "sample": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "insert",
+                    "update",
+                    "duplicate",
+                    "rejected"
+                  ]
+                },
+                "recordId": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "values": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/CellValue"
+                  }
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "recordId",
+                "values",
+                "reason"
+              ]
+            }
+          },
+          "committed": {
+            "type": "boolean"
+          },
+          "changeSetId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "datasetId",
+          "inserts",
+          "updates",
+          "duplicatesSkipped",
+          "rejected",
+          "sample",
+          "committed",
+          "changeSetId"
+        ]
+      },
+      "QueryDefinition": {
+        "type": "object",
+        "properties": {
+          "datasetId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "select": {
+            "minItems": 1,
+            "maxItems": 8,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectItem"
+            }
+          },
+          "filters": {
+            "default": [],
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Filter"
+            }
+          },
+          "groupBy": {
+            "default": [],
+            "maxItems": 3,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{0,39}$"
+            }
+          },
+          "orderBy": {
+            "default": [],
+            "maxItems": 3,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "by": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                },
+                "direction": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ]
+                }
+              },
+              "required": [
+                "by",
+                "direction"
+              ]
+            }
+          },
+          "limit": {
+            "default": 100,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "datasetId",
+          "select",
+          "filters",
+          "groupBy",
+          "orderBy",
+          "limit"
+        ]
+      },
+      "QueryResult": {
+        "type": "object",
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "string",
+                    "number",
+                    "date"
+                  ]
+                }
+              },
+              "required": [
+                "key",
+                "label",
+                "type"
+              ]
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ]
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "datasetRevision": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "generatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "truncated": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "datasetRevision",
+              "generatedAt",
+              "truncated"
+            ]
+          }
+        },
+        "required": [
+          "columns",
+          "rows",
+          "meta"
+        ]
+      },
+      "RecordIssue": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "warning",
+              "error"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fieldId",
+          "severity",
+          "message"
+        ]
+      },
+      "RecordSort": {
+        "type": "object",
+        "properties": {
+          "fieldId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          }
+        },
+        "required": [
+          "fieldId",
+          "direction"
+        ]
+      },
+      "Run": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "actionId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "draftId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifactHash": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "dry_run",
+              "live"
+            ]
+          },
+          "trigger": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "schedule",
+              "approval"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "succeeded",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stepId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "running",
+                    "succeeded",
+                    "failed",
+                    "skipped"
+                  ]
+                },
+                "message": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "stepId",
+                "status",
+                "message"
+              ]
+            }
+          },
+          "changes": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProposedChanges"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "actionId",
+          "draftId",
+          "artifactHash",
+          "mode",
+          "trigger",
+          "status",
+          "steps",
+          "changes",
+          "error",
+          "createdAt",
+          "startedAt",
+          "finishedAt"
+        ]
+      },
+      "RunEvent": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "run.updated"
+              },
+              "run": {
+                "$ref": "#/components/schemas/Run"
+              }
+            },
+            "required": [
+              "type",
+              "run"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "log"
+              },
+              "at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "level": {
+                "type": "string",
+                "enum": [
+                  "info",
+                  "warn",
+                  "error"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "at",
+              "level",
+              "message"
+            ]
+          }
+        ]
+      },
+      "Schedule": {
+        "type": "object",
+        "properties": {
+          "cron": {
+            "type": "string",
+            "minLength": 9,
+            "maxLength": 100
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          },
+          "nextRunAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "cron",
+          "timezone",
+          "enabled",
+          "description",
+          "nextRunAt"
+        ]
+      },
+      "SchemaChange": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "addField"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "type": {
+                "$ref": "#/components/schemas/FieldType"
+              },
+              "config": {
+                "$ref": "#/components/schemas/FieldConfig"
+              }
+            },
+            "required": [
+              "op",
+              "name",
+              "type"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "renameField"
+              },
+              "fieldId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              }
+            },
+            "required": [
+              "op",
+              "fieldId",
+              "name"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "changeFieldType"
+              },
+              "fieldId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "type": {
+                "$ref": "#/components/schemas/FieldType"
+              },
+              "config": {
+                "$ref": "#/components/schemas/FieldConfig"
+              }
+            },
+            "required": [
+              "op",
+              "fieldId",
+              "type"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "updateFieldConfig"
+              },
+              "fieldId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "config": {
+                "$ref": "#/components/schemas/FieldConfig"
+              }
+            },
+            "required": [
+              "op",
+              "fieldId",
+              "config"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "deprecateField"
+              },
+              "fieldId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "op",
+              "fieldId"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "restoreField"
+              },
+              "fieldId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "op",
+              "fieldId"
+            ]
+          }
+        ]
+      },
+      "SchemaChangeInput": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "addField"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "type": {
+                "$ref": "#/components/schemas/FieldType"
+              },
+              "config": {
+                "$ref": "#/components/schemas/FieldConfigInput"
+              }
+            },
+            "required": [
+              "op",
+              "name",
+              "type"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "renameField"
+              },
+              "fieldId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              }
+            },
+            "required": [
+              "op",
+              "fieldId",
+              "name"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "changeFieldType"
+              },
+              "fieldId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "type": {
+                "$ref": "#/components/schemas/FieldType"
+              },
+              "config": {
+                "$ref": "#/components/schemas/FieldConfigInput"
+              }
+            },
+            "required": [
+              "op",
+              "fieldId",
+              "type"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "updateFieldConfig"
+              },
+              "fieldId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "config": {
+                "$ref": "#/components/schemas/FieldConfigInput"
+              }
+            },
+            "required": [
+              "op",
+              "fieldId",
+              "config"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "deprecateField"
+              },
+              "fieldId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "op",
+              "fieldId"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "type": "string",
+                "const": "restoreField"
+              },
+              "fieldId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "op",
+              "fieldId"
+            ]
+          }
+        ]
+      },
+      "SchemaImpact": {
+        "type": "object",
+        "properties": {
+          "requiresConfirmation": {
+            "type": "boolean"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "conversions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "fieldId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "convertible": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "failed": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "examples": {
+                  "maxItems": 10,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "recordId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      },
+                      "value": {
+                        "type": "string"
+                      },
+                      "reason": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "recordId",
+                      "value",
+                      "reason"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "fieldId",
+                "convertible",
+                "failed",
+                "examples"
+              ]
+            }
+          },
+          "dependents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "widget",
+                    "action",
+                    "view"
+                  ]
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "name": {
+                  "type": "string"
+                },
+                "effect": {
+                  "type": "string",
+                  "enum": [
+                    "unaffected",
+                    "needs_attention",
+                    "broken"
+                  ]
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "id",
+                "name",
+                "effect",
+                "reason"
+              ]
+            }
+          }
+        },
+        "required": [
+          "requiresConfirmation",
+          "summary",
+          "conversions",
+          "dependents"
+        ]
+      },
+      "SelectItem": {
+        "type": "object",
+        "properties": {
+          "as": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,39}$"
+          },
+          "fieldId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "aggregate": {
+            "type": "string",
+            "enum": [
+              "count",
+              "countDistinct",
+              "sum",
+              "avg",
+              "min",
+              "max"
+            ]
+          },
+          "bucket": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month",
+              "quarter",
+              "year"
+            ]
+          }
+        },
+        "required": [
+          "as"
+        ]
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "email"
+            ]
+          },
+          "workspaces": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "name": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "owner",
+                    "editor",
+                    "viewer"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "role"
+              ]
+            }
+          }
+        },
+        "required": [
+          "user",
+          "workspaces"
+        ]
+      },
+      "Upload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "filename": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "quarantined",
+              "ready",
+              "rejected"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "filename",
+          "contentType",
+          "size",
+          "status",
+          "createdAt"
+        ]
+      },
+      "UploadTicket": {
+        "type": "object",
+        "properties": {
+          "upload": {
+            "$ref": "#/components/schemas/Upload"
+          },
+          "uploadUrl": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string",
+            "const": "PUT"
+          },
+          "headers": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "upload",
+          "uploadUrl",
+          "method",
+          "headers",
+          "expiresAt"
+        ]
+      },
+      "ValueFormat": {
+        "type": "object",
+        "properties": {
+          "style": {
+            "type": "string",
+            "enum": [
+              "number",
+              "currency",
+              "percent"
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3
+          },
+          "compact": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "style",
+          "compact"
+        ]
+      },
+      "Widget": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "needs_attention"
+                ]
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "kind": {
+                "type": "string",
+                "const": "chart"
+              },
+              "chartVersionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "definition": {
+                "$ref": "#/components/schemas/ChartDefinition"
+              }
+            },
+            "required": [
+              "id",
+              "status",
+              "issues",
+              "createdAt",
+              "kind",
+              "chartVersionId",
+              "definition"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "needs_attention"
+                ]
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "kind": {
+                "type": "string",
+                "const": "dataHealth"
+              },
+              "datasetId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "status",
+              "issues",
+              "createdAt",
+              "kind",
+              "datasetId",
+              "title"
+            ]
+          }
+        ]
+      },
+      "Workspace": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "editor",
+              "viewer"
+            ]
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatasetSummary"
+            }
+          },
+          "defaultDashboardId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "role",
+          "datasets",
+          "defaultDashboardId"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "session": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "lh_session"
+      }
+    }
+  },
+  "security": [
+    {
+      "session": []
+    }
+  ]
+}

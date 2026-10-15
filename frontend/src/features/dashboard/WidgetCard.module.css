@@ -1,0 +1,201 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #cbd8d0;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.attention {
+  border-color: #e6c58f;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 58px;
+  padding: 11px 10px 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.metric .header {
+  min-height: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.titleGroup {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.titles {
+  min-width: 0;
+}
+
+.titles h2 {
+  overflow: hidden;
+  color: #293830;
+  font-size: 0.88rem;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metric .titles h2 {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 660;
+}
+
+.titles p {
+  margin-top: 3px;
+  overflow: hidden;
+  color: #748179;
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dragHandle {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 26px;
+  margin: -3px 0 0 -4px;
+  border-radius: 4px;
+  color: #9aa79f;
+  cursor: grab;
+  touch-action: none;
+}
+
+.dragHandle:hover {
+  color: var(--green);
+  background: var(--green-pale);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.metric .body > div {
+  padding-top: 4px;
+  padding-bottom: 10px;
+}
+
+/* ── Needs attention ───────────────────────────────────────────────────── */
+.needsAttention {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 14px;
+  color: var(--amber);
+  font-size: 0.74rem;
+}
+
+.needsAttention > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 750;
+}
+
+.needsAttention p {
+  color: var(--muted);
+}
+
+.needsAttention ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink-2);
+}
+
+/* ── Data health ───────────────────────────────────────────────────────── */
+.health {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+}
+
+.ring {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: conic-gradient(var(--green) 0 var(--score), #e2ece5 var(--score) 100%);
+}
+
+.ring > div {
+  display: grid;
+  place-content: center;
+  width: 70px;
+  height: 70px;
+  border-radius: inherit;
+  text-align: center;
+  background: var(--surface);
+}
+
+.ring strong {
+  font-size: 1.22rem;
+  letter-spacing: -0.05em;
+}
+
+.ring span {
+  color: #7b8981;
+  font-size: 0.63rem;
+}
+
+.healthCopy {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.healthCopy strong {
+  font-size: 0.8rem;
+}
+
+.healthCopy p {
+  color: #748179;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.healthCopy button {
+  margin-left: -9px;
+}
+
+.dataDialog {
+  display: flex;
+  flex-direction: column;
+  max-height: 60vh;
+  padding: 8px 12px 14px;
+}
+
+.provenance {
+  padding: 10px 10px 0;
+  color: var(--faint);
+  font-size: 0.7rem;
+}

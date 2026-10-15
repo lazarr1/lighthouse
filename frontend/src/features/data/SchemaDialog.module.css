@@ -1,0 +1,154 @@
+.list {
+  display: grid;
+  gap: 6px;
+  max-height: 320px;
+  margin: 0;
+  padding: 16px 24px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 150px auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.row strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #415149;
+  font-size: 0.8rem;
+}
+
+.row select {
+  height: 30px;
+  font-size: 0.74rem;
+}
+
+.rowActions {
+  display: flex;
+}
+
+.renameForm {
+  display: flex;
+  gap: 6px;
+}
+
+.renameForm input {
+  height: 30px;
+}
+
+.hidden {
+  padding: 0 24px 14px;
+}
+
+.hidden h3 {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.hiddenRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--faint);
+  font-size: 0.76rem;
+}
+
+.addForm {
+  display: grid;
+  grid-template-columns: 1fr 160px auto;
+  align-items: end;
+  gap: 9px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--line);
+  background: #fbfdfc;
+}
+
+.choices {
+  grid-column: 1 / -1;
+}
+
+.footnote {
+  color: var(--faint);
+  font-size: 0.7rem;
+}
+
+.review {
+  display: grid;
+  gap: 14px;
+  padding: 18px 24px;
+  font-size: 0.8rem;
+}
+
+.changeList {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink-2);
+  font-weight: 650;
+}
+
+.summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #f0d6a6;
+  border-radius: var(--radius-md);
+  color: var(--amber);
+  background: var(--amber-soft);
+}
+
+.section h3 {
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+}
+
+.section p {
+  color: var(--muted);
+}
+
+.examples,
+.dependents {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.examples code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--surface-3);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+}
+
+.dependents li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--muted);
+}
+
+@media (max-width: 560px) {
+  .row,
+  .addForm {
+    grid-template-columns: 1fr;
+  }
+  .list,
+  .addForm,
+  .hidden,
+  .review {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

@@ -1,0 +1,68 @@
+/*
+ * Design tokens. Components reference only these variables, so the palette
+ * (forest green for data actions, blue for AI, amber for review, red for
+ * destructive) can be re-themed in one place.
+ */
+:root {
+  color-scheme: light;
+
+  --font-sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --ink: #1a2821;
+  --ink-2: #34443b;
+  --muted: #617169;
+  --faint: #8c9992;
+  --line: #dbe5de;
+  --line-soft: #e2e9e4;
+  --line-strong: #c6d3cb;
+
+  --surface: #ffffff;
+  --surface-2: #fafcfb;
+  --surface-3: #f3f6f4;
+  --canvas: #f5f8f6;
+
+  --green: #176f47;
+  --green-dark: #105c39;
+  --green-soft: #e8f5ed;
+  --green-pale: #f3faf6;
+  --green-chart: #7ebf9e;
+
+  --blue: #316fdb;
+  --blue-dark: #2459b8;
+  --blue-soft: #edf3ff;
+
+  --amber: #9a5913;
+  --amber-soft: #fff3dd;
+  --amber-dot: #d2841b;
+
+  --red: #b83b45;
+  --red-soft: #fbecee;
+
+  --purple: #8a55a1;
+  --purple-soft: #f7effb;
+
+  --focus-ring: 0 0 0 3px rgba(49, 111, 219, 0.35);
+  --shadow-sm: 0 1px 2px rgba(19, 44, 32, 0.04);
+  --shadow-md: 0 3px 9px rgba(18, 51, 35, 0.065);
+  --shadow-lg: 0 12px 35px rgba(26, 55, 40, 0.1);
+  --shadow-xl: 0 28px 70px rgba(16, 45, 31, 0.28);
+
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 9px;
+  --radius-xl: 12px;
+
+  --topbar-height: 60px;
+  --tabs-height: 48px;
+  --grid-row-height: 34px;
+
+  /* Chart series palette (validated for contrast on white). */
+  --series-1: #176f47;
+  --series-2: #316fdb;
+  --series-3: #d2841b;
+  --series-4: #8a55a1;
+  --series-5: #3aa6a0;
+  --series-6: #b83b45;
+  --series-7: #7c8b83;
+}

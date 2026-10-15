@@ -1,0 +1,146 @@
+.page {
+  max-width: 1300px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.list,
+.detail {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+  max-height: calc(100vh - 220px);
+  padding: 12px;
+  overflow: auto;
+}
+
+.list h2 {
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.filter {
+  height: 32px;
+  padding: 0 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  font-size: 0.78rem;
+}
+
+.op {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  font-size: 0.72rem;
+  text-align: left;
+}
+
+.op:hover,
+.selected {
+  background: var(--green-pale);
+}
+
+.op code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.method {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 52px;
+  padding: 2px 0;
+  border-radius: 4px;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.GET {
+  background: var(--blue);
+}
+.POST {
+  background: var(--green);
+}
+.PUT,
+.PATCH {
+  background: var(--amber-dot);
+}
+.DELETE {
+  background: var(--red);
+}
+
+.detail {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  font-size: 0.8rem;
+}
+
+.detail h2 {
+  font-size: 0.95rem;
+}
+
+.detail h3 {
+  margin-top: 8px;
+  font-size: 0.8rem;
+}
+
+.detail pre {
+  max-height: 360px;
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+  border-radius: 6px;
+  background: #f4f7f5;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+.params {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 16px;
+}
+
+.params span {
+  color: var(--faint);
+}
+
+.params b {
+  color: var(--amber);
+  font-size: 0.68rem;
+}
+
+.meta {
+  color: var(--faint);
+  font-size: 0.72rem;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

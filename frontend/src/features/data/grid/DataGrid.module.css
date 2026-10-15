@@ -1,0 +1,330 @@
+.frame {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.scroller {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--surface);
+}
+
+.grid {
+  position: relative;
+  min-width: 100%;
+  font-size: 0.78rem;
+  outline: none;
+}
+
+.grid:focus-visible {
+  box-shadow: none;
+}
+
+.head {
+  position: sticky;
+  z-index: 3;
+  top: 0;
+  background: var(--surface);
+}
+
+.letterRow,
+.headerRow,
+.row {
+  display: grid;
+}
+
+.letterRow span {
+  height: 22px;
+  border-right: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-strong);
+  color: #95a098;
+  background: #f7f9f8;
+  font-size: 0.62rem;
+  font-weight: 740;
+  line-height: 22px;
+  text-align: center;
+}
+
+.letterRow span:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #f0f4f1;
+}
+
+.headerRow {
+  border-bottom: 1px solid var(--line-strong);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+}
+
+.rowHeaderCorner {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  border-right: 1px solid var(--line-soft);
+  color: #96a19a;
+  background: var(--surface-2);
+  font-size: 0.68rem;
+}
+
+.columnHeader {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  height: 40px;
+  border-right: 1px solid var(--line-soft);
+}
+
+.sortButton {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  gap: 6px;
+  padding: 0 10px;
+  border: 0;
+  color: #43534a;
+  background: transparent;
+  font-size: 0.73rem;
+  font-weight: 750;
+  text-align: left;
+}
+
+.sortButton:hover {
+  background: var(--surface-2);
+}
+
+.fieldName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.typeGlyph {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  border-radius: 3px;
+  color: var(--green);
+  background: var(--green-pale);
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+
+.type-number,
+.type-money,
+.type-percent {
+  color: #2669ce;
+  background: #ebf2ff;
+}
+
+.type-singleSelect,
+.type-multiSelect {
+  color: #946313;
+  background: #fff5d9;
+}
+
+.type-date,
+.type-datetime {
+  color: var(--purple);
+  background: var(--purple-soft);
+}
+
+.type-boolean,
+.type-url {
+  color: #2f7f7a;
+  background: #e8f6f5;
+}
+
+.resizer {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: -4px;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.resizer:hover,
+.resizer:focus-visible {
+  background: linear-gradient(90deg, transparent 3px, var(--green) 3px 5px, transparent 5px);
+  box-shadow: none;
+}
+
+.body {
+  position: relative;
+}
+
+.row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--grid-row-height);
+}
+
+.row:hover .cell {
+  background: #fbfefc;
+}
+
+.rowHeader {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  border-right: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+  background: var(--surface-2);
+}
+
+.rowHeader button {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  color: #96a19a;
+  background: transparent;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.rowHeader button:hover {
+  color: var(--green);
+  background: var(--green-pale);
+}
+
+.activeRow .rowHeader {
+  background: var(--green-soft);
+}
+
+.activeRow .rowHeader button {
+  color: var(--green);
+}
+
+.cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0 10px;
+  overflow: hidden;
+  border-right: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--ink-2);
+  background: var(--surface);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+.numeric {
+  justify-content: flex-end;
+  font-variant-numeric: tabular-nums;
+}
+
+.activeCell {
+  z-index: 1;
+  overflow: visible;
+  outline: 2px solid var(--green);
+  outline-offset: -2px;
+  background: #f8fdf9 !important;
+}
+
+.editingCell {
+  padding: 0;
+}
+
+.issue::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-top: 7px solid var(--amber-dot);
+  border-left: 7px solid transparent;
+}
+
+.pills {
+  display: flex;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.check {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  color: #fff;
+  background: var(--green);
+}
+
+.no {
+  color: var(--faint);
+}
+
+.link {
+  overflow: hidden;
+  color: var(--blue);
+  text-decoration: none;
+  text-overflow: ellipsis;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.editorWrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.editor {
+  width: 100%;
+  height: 100%;
+  padding: 0 9px;
+  border: 0;
+  outline: 2px solid var(--green);
+  outline-offset: -2px;
+  color: var(--ink);
+  background: #fff;
+  font-size: inherit;
+}
+
+.editor[aria-invalid='true'] {
+  outline-color: var(--red);
+}
+
+.editorError {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 2px);
+  left: 0;
+  padding: 4px 7px;
+  border-radius: 4px;
+  color: #fff;
+  background: var(--red);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.loadingMore {
+  position: sticky;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  color: var(--muted);
+  font-size: 0.74rem;
+}

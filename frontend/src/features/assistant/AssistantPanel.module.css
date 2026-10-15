@@ -1,0 +1,381 @@
+.panel {
+  position: sticky;
+  top: calc(var(--topbar-height) + var(--tabs-height));
+  display: flex;
+  flex-direction: column;
+  width: 380px;
+  height: calc(100vh - var(--topbar-height) - var(--tabs-height));
+  border-left: 1px solid var(--line-strong);
+  background: var(--surface);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 14px 12px 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.header > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.header h2 {
+  font-size: 0.92rem;
+  letter-spacing: -0.015em;
+}
+
+.header p {
+  margin-top: 2px;
+  color: var(--faint);
+  font-size: 0.71rem;
+}
+
+.aiMark,
+.miniAi {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #fff;
+  background: var(--blue);
+}
+
+.aiMark {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+}
+
+.miniAi {
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+  border-radius: 6px;
+}
+
+.miniError {
+  background: var(--red);
+}
+
+.thread {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  padding: 16px 14px 12px;
+  overflow-y: auto;
+  background: linear-gradient(#fcfefd, #fff);
+}
+
+.message {
+  display: flex;
+  gap: 8px;
+}
+
+.user {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: 88%;
+}
+
+.bubble p {
+  color: #34463d;
+  font-size: 0.8rem;
+  font-weight: 630;
+}
+
+.bubble span {
+  display: block;
+  margin-top: 4px;
+  color: #75817b;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.userBubble {
+  max-width: 85%;
+  padding: 8px 10px;
+  border: 1px solid #c4ddce;
+  border-radius: 8px 8px 2px 8px;
+  color: #26563d;
+  background: var(--green-pale);
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+}
+
+.attachmentNote {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.suggestions {
+  display: grid;
+  gap: 6px;
+  margin-left: 32px;
+}
+
+.suggestions button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: max-content;
+  max-width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: #52645a;
+  background: var(--surface);
+  font-size: 0.74rem;
+  text-align: left;
+}
+
+.suggestions button:hover {
+  border-color: #9dc8b0;
+  color: var(--green);
+  background: var(--green-pale);
+}
+
+.suggestions svg {
+  color: var(--green);
+}
+
+.plan {
+  display: grid;
+  gap: 10px;
+  margin-left: 32px;
+  padding: 11px;
+  border: 1px solid #bedacb;
+  border-radius: 8px;
+  background: #f8fcf9;
+}
+
+.plan[data-tone='error'] {
+  border-color: #e3b7bc;
+  background: #fffafa;
+}
+
+.plan h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  letter-spacing: -0.01em;
+}
+
+.plan h3 svg {
+  color: var(--blue);
+}
+
+.plan[data-tone='error'] h3 svg {
+  color: var(--red);
+}
+
+.plan > p {
+  color: #5e7166;
+  font-size: 0.73rem;
+}
+
+.questions {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink-2);
+  font-size: 0.74rem;
+}
+
+.hint {
+  color: var(--faint) !important;
+  font-size: 0.68rem !important;
+}
+
+.permissionsBox summary {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.error {
+  color: var(--red);
+  font-size: 0.73rem;
+}
+
+.done {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  border-radius: 6px;
+  color: var(--green-dark);
+  background: var(--green-soft);
+  font-size: 0.75rem;
+}
+
+.done span {
+  flex: 1;
+}
+
+.planFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.planFooter > span {
+  color: #7b8a81;
+  font-size: 0.68rem;
+}
+
+.link {
+  color: var(--green);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.composer {
+  flex: 0 0 auto;
+  margin: 0 12px 12px;
+  border: 1px solid #cbd8d0;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 2px 8px rgba(20, 54, 36, 0.06);
+}
+
+.composer:focus-within {
+  border-color: #75aa8d;
+  box-shadow: 0 0 0 3px rgba(81, 157, 107, 0.11);
+}
+
+.composer textarea {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 11px 6px;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: transparent;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.composer textarea:focus-visible {
+  box-shadow: none;
+}
+
+.attachment {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 8px 8px 0;
+  padding: 3px 4px 3px 7px;
+  border-radius: 5px;
+  color: #42624f;
+  background: var(--green-pale);
+  font-size: 0.72rem;
+}
+
+.attachmentError {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+.fileIcon {
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  border-radius: 4px;
+  color: #fff;
+  background: var(--green);
+}
+
+.attachmentError .fileIcon {
+  background: var(--red);
+}
+
+.attachmentName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 7px 7px;
+}
+
+.attach {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 5px;
+  border-radius: 4px;
+  color: #62726a;
+  font-size: 0.71rem;
+  cursor: pointer;
+}
+
+.attach:hover {
+  color: var(--green);
+  background: var(--green-pale);
+}
+
+.hint {
+  flex: 1;
+  color: #9ba59f;
+  font-size: 0.66rem;
+  text-align: right;
+}
+
+.send {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--green-dark);
+  border-radius: 6px;
+  color: #fff;
+  background: var(--green);
+}
+
+.send:disabled {
+  opacity: 0.45;
+}
+
+@media (max-width: 1100px) {
+  .panel {
+    position: fixed;
+    z-index: 30;
+    top: calc(var(--topbar-height) + var(--tabs-height));
+    right: 0;
+    bottom: 0;
+    height: auto;
+    box-shadow: var(--shadow-xl);
+  }
+}
+
+@media (max-width: 520px) {
+  .panel {
+    width: 100vw;
+    top: var(--topbar-height);
+  }
+}

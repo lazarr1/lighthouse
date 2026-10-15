@@ -1,0 +1,40 @@
+.canvas {
+  position: relative;
+  min-height: 420px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+}
+
+.editing {
+  background-color: var(--surface);
+  background-image:
+    linear-gradient(rgba(211, 224, 216, 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(211, 224, 216, 0.4) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.cell {
+  display: flex;
+}
+
+.cell > * {
+  flex: 1;
+  min-width: 0;
+}
+
+.editing :global(.react-grid-item.react-draggable-dragging) > article,
+.editing :global(.react-grid-item.resizing) > article {
+  border-color: #70ab8a;
+  box-shadow: 0 14px 30px rgba(18, 72, 46, 0.18);
+}
+
+.canvas :global(.react-grid-item.react-grid-placeholder) {
+  border-radius: 8px;
+  background: var(--green);
+  opacity: 0.12;
+}
+
+.canvas :global(.react-resizable-handle) {
+  opacity: 0.6;
+}

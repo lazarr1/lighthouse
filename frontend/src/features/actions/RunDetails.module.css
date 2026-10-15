@@ -1,0 +1,209 @@
+.permissions ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.permissions li {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.permissions li svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.elevated {
+  color: var(--amber) !important;
+}
+
+.limits {
+  margin-top: 6px;
+  color: var(--faint);
+  font-size: 0.67rem;
+}
+
+.steps {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  color: #4b5f54;
+  font-size: 0.73rem;
+}
+
+.steps strong {
+  display: block;
+  font-weight: 650;
+}
+
+.steps small {
+  display: block;
+  color: var(--faint);
+  font-size: 0.68rem;
+}
+
+.stepMarker {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  margin-top: 1px;
+  border-radius: 50%;
+  color: var(--green);
+  background: #e0f1e7;
+  font-size: 0.6rem;
+  font-weight: 750;
+}
+
+.step-running .stepMarker {
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.step-succeeded .stepMarker {
+  color: #fff;
+  background: var(--green);
+}
+
+.step-failed .stepMarker {
+  color: #fff;
+  background: var(--red);
+}
+
+.step-failed small {
+  color: var(--red);
+}
+
+.step-skipped {
+  opacity: 0.55;
+}
+
+.log {
+  font-size: 0.7rem;
+}
+
+.log summary {
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.log ol {
+  display: grid;
+  gap: 3px;
+  margin: 6px 0 0;
+  padding: 8px;
+  border-radius: 6px;
+  color: #4b5f54;
+  background: var(--surface-3);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  list-style: none;
+}
+
+.log time {
+  color: var(--faint);
+}
+
+.log-warn {
+  color: var(--amber);
+}
+
+.log-error {
+  color: var(--red);
+}
+
+.changes {
+  display: grid;
+  gap: 8px;
+}
+
+.changesHeading {
+  color: var(--ink-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.changesHeading span {
+  color: var(--faint);
+  font-weight: 500;
+}
+
+.counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.none {
+  color: var(--faint);
+  font-size: 0.72rem;
+}
+
+.sampleWrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.sample {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.68rem;
+}
+
+.sample th,
+.sample td {
+  padding: 5px 7px;
+  border-bottom: 1px solid var(--line-soft);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.sample th {
+  color: var(--muted);
+  background: var(--surface-2);
+}
+
+.sample-insert td:first-child {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.sample-update td:first-child {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.sample-duplicate {
+  color: var(--faint);
+}
+
+.sample-rejected td:first-child {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.reasons {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 6px 8px;
+  color: var(--muted);
+  font-size: 0.66rem;
+  list-style: none;
+}

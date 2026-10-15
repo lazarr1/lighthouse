@@ -1,0 +1,51 @@
+.label {
+  display: block;
+  margin-bottom: 6px;
+  color: #46574e;
+  font-size: 0.76rem;
+  font-weight: 720;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  outline: 0;
+  color: var(--ink-2);
+  background: var(--surface);
+  font-size: 0.8rem;
+}
+
+.input,
+.select {
+  height: 36px;
+  padding: 0 9px;
+}
+
+.textarea {
+  display: block;
+  padding: 9px 10px;
+  resize: vertical;
+  line-height: 1.4;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: #79aa8e;
+  box-shadow: 0 0 0 3px rgba(81, 157, 107, 0.12);
+}
+
+.hint {
+  margin-top: 5px;
+  color: var(--faint);
+  font-size: 0.7rem;
+}
+
+.error {
+  margin-top: 5px;
+  color: var(--red);
+  font-size: 0.72rem;
+}
