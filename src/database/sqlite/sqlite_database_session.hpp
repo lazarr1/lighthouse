@@ -15,7 +15,7 @@ public:
   Result<void> commit() override;
   Result<void> rollback() override;
 
-  AsyncResult<std::optional<QueryPage>> execute(Command cmd) override;
+  Result<QueryPage> execute(Command cmd) override;
 
   // virtual AsyncResult<QueryPage> query(QuerySpec spec) = 0;
   // virtual AsyncResult<CommandResult> execute(Command cmd) = 0;

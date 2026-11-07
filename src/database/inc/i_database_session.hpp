@@ -12,7 +12,7 @@ public:
   // virtual AsyncResult<QueryPage> query(QuerySpec spec) = 0;
 
   // For now just let user execute whatever they want on SQL side.
-  virtual AsyncResult<std::optional<QueryPage>> execute(Command cmd) = 0;
+  virtual Result<QueryPage> execute(Command cmd) = 0;
 
   virtual Result<void> beginTransaction(TransactionMode mode) = 0;
   virtual Result<void> commit() = 0;
