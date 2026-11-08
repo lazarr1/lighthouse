@@ -1,29 +1,28 @@
 #pragma once
 
 #include <expected>
-#include <future>
 #include <optional>
 #include <string>
 
 namespace db {
 
-enum class DbErrorCode { 
-  NoError = 0, 
+enum class DbErrorCode {
   NotImplemented,
 
   FailedToOpenDatabase,
-  UnkownOpenType,
+  UnknownOpenType,
   CommandFailed,
 
   UnableToStartTransaction,
-  UnknownTransactionType, 
+  UnknownTransactionType,
   NoTransactionPresent,
   TransactionAlreadyStarted,
 };
 
 struct DbError {
   DbError(const DbErrorCode ec);
-  DbError(const DbErrorCode ec, const int nativeErrorCode, const std::string message);
+  DbError(const DbErrorCode ec, const int nativeErrorCode,
+          const std::string message);
   DbErrorCode ec;
   bool isNativeError;
   std::optional<int> nativeErrorCode;
@@ -31,7 +30,5 @@ struct DbError {
 };
 
 template <typename T> using Result = std::expected<T, DbError>;
-
-template <typename T> using AsyncResult = std::future<Result<T>>;
 
 }; // namespace db

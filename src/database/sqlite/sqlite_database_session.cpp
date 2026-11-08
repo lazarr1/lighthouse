@@ -40,11 +40,10 @@ Result<value> readColumn(sqlite3_stmt *statement, const int column) {
 } // namespace
 
 SqliteDatabaseSession::SqliteDatabaseSession(SqliteHandle db)
-    : db_(std::move(db)), transactionMode_(TransactionMode::ReadOnly),
-      transactionStarted_(false) {}
+    : db_(std::move(db)), transactionMode_(TransactionMode::ReadOnly) {}
 
 Result<void> SqliteDatabaseSession::beginTransaction(TransactionMode mode) {
-  if (transactionStarted_) {
+  if (!sqlite3_get_autocommit(db_.get())) {
     return std::unexpected(DbError(DbErrorCode::TransactionAlreadyStarted));
   }
 
@@ -68,12 +67,11 @@ Result<void> SqliteDatabaseSession::beginTransaction(TransactionMode mode) {
   }
 
   transactionMode_ = mode;
-  transactionStarted_ = true;
   return {};
 }
 
 Result<void> SqliteDatabaseSession::commit() {
-  if (!transactionStarted_) {
+  if (sqlite3_get_autocommit(db_.get())) {
     return std::unexpected(DbError(DbErrorCode::NoTransactionPresent));
   }
 
@@ -83,13 +81,11 @@ Result<void> SqliteDatabaseSession::commit() {
                                    result, sqlite3_errmsg(db_.get())));
   }
 
-  transactionStarted_ = false;
-
   return {};
 }
 
 Result<void> SqliteDatabaseSession::rollback() {
-  if (!transactionStarted_) {
+  if (sqlite3_get_autocommit(db_.get())) {
     return std::unexpected(DbError(DbErrorCode::NoTransactionPresent));
   }
 
@@ -100,14 +96,11 @@ Result<void> SqliteDatabaseSession::rollback() {
                                    result, sqlite3_errmsg(db_.get())));
   }
 
-  transactionStarted_ = false;
-
   return {};
 }
 
 Result<QueryPage> SqliteDatabaseSession::execute(Command cmd) {
 
-  Result<QueryPage> res;
   sqlite3_stmt *rawStatement = nullptr;
   const int prepareResult = sqlite3_prepare_v2(db_.get(), cmd.command.c_str(),
                                                -1, &rawStatement, nullptr);

@@ -24,7 +24,6 @@ public:
 private:
   SqliteHandle db_;
   TransactionMode transactionMode_;
-  bool transactionStarted_;
 };
 
 }; // namespace db

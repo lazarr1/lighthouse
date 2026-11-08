@@ -1,3 +1,7 @@
 CREATE TABLE numbers (value INTEGER);
 INSERT INTO numbers (value) VALUES (1), (2), (3);
 SELECT value FROM numbers;
+
+CREATE TABLE numbers (value INTEGER, value2 TEXT);
+INSERT INTO numbers (value, value2) VALUES (1, 'test'), (2, 'TEST2'), (3, 'Test3');
+SELECT value, value2 FROM numbers;

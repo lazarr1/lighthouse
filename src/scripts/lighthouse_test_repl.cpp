@@ -17,8 +17,7 @@ int main(int argc, char *argv[]) {
 
   std::string line;
 
-  db::SqliteDatabaseAdapter adapter(
-      {.path = ":memory:", .openMode = db::OpenMode::ReadWriteCreate});
+  db::SqliteDatabaseAdapter adapter(conf);
   auto result = adapter.open();
 
   if (!result) {
