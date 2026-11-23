@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
+import type { EndpointName } from '@/api/contract';
 import { buildOpenApiDocument } from '@/api/contract/openapi';
+import { readConfig } from '@/app/config';
 import { cx } from '@/lib/cx';
 import { Button, PageHeader } from '@/ui';
 import styles from './ContractExplorer.module.css';
@@ -19,6 +21,8 @@ type Operation = {
  */
 export function ContractExplorer() {
   const document = useMemo(() => buildOpenApiDocument(), []);
+  const config = readConfig();
+  const isLive = (operationId: string) => config.liveEndpoints.has(operationId as EndpointName);
   const [selected, setSelected] = useState<string | null>(null);
   const [filter, setFilter] = useState('');
 
@@ -48,7 +52,7 @@ export function ContractExplorer() {
       <PageHeader
         eyebrow="Developer"
         title="API contract"
-        note={`${operations.length} operations · ${Object.keys(document.components.schemas).length} schemas · generated from src/api/contract`}
+        note={`${operations.length} operations · ${config.liveEndpoints.size} live · ${Object.keys(document.components.schemas).length} schemas · generated from src/api/contract`}
         actions={
           <Button icon="arrowDown" onClick={download}>
             Download openapi.json
@@ -78,6 +82,7 @@ export function ContractExplorer() {
                   >
                     <span className={cx(styles.method, styles[method])}>{method}</span>
                     <code>{path}</code>
+                    {isLive(operation.operationId) ? <span className={styles.live}>live</span> : null}
                   </button>
                 ))}
             </section>
@@ -91,6 +96,10 @@ export function ContractExplorer() {
                 <code>{current.path}</code>
               </h2>
               <p>{current.operation.summary}</p>
+              <p className={styles.meta}>
+                Served by:{' '}
+                {isLive(current.operation.operationId) ? 'your backend (live)' : 'the in-browser mock'}
+              </p>
               <p className={styles.meta}>operationId: {current.operation.operationId}</p>
               {current.operation.parameters.length ? (
                 <>

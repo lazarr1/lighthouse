@@ -11,7 +11,11 @@ export const ws = (path: string) => `/w/${WORKSPACE_ID}${path}`;
 
 /** Renders the whole app (real router, real API client) against the strict mock backend. */
 export function renderApp(path = ws('/dashboard')) {
-  const services = createAppServices({ apiMode: 'http', apiBaseUrl: TEST_BASE_URL });
+  const services = createAppServices({
+    apiMode: 'http',
+    apiBaseUrl: TEST_BASE_URL,
+    liveEndpoints: new Set(),
+  });
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   const user = userEvent.setup();
   const utils = render(

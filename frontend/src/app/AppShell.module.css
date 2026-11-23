@@ -87,6 +87,20 @@
   background: #ffd27a;
 }
 
+.modeBadge {
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  color: #d9efe2;
+  font: 600 0.68rem/1.4 var(--font-mono);
+  text-decoration: none;
+}
+
+.modeBadgeLive {
+  border-color: #ffd27a;
+  color: #ffe2a6;
+}
+
 .topbarActions {
   display: flex;
   align-items: center;

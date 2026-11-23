@@ -3,3 +3,4 @@ coverage
 public/mockServiceWorker.js
 docs/openapi.json
 package-lock.json
+fixtures

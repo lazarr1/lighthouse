@@ -61,6 +61,7 @@ function ShellFrame({ children }: { children: ReactNode }) {
             <span className={cx(styles.savedDot, saving > 0 && styles.savingDot)} />
             {saving > 0 ? 'Saving…' : loading > 0 ? 'Syncing…' : 'All changes saved'}
           </span>
+          <ApiModeBadge />
         </div>
         <div className={styles.topbarActions}>
           <IconButton
@@ -132,5 +133,26 @@ function ShellFrame({ children }: { children: ReactNode }) {
         <AssistantPanel />
       </div>
     </div>
+  );
+}
+
+/** Dev-only reminder of where API calls are going (never shown in production http builds). */
+function ApiModeBadge() {
+  const config = readConfig();
+  if (config.apiMode === 'http' && !import.meta.env.DEV) return null;
+  const label =
+    config.apiMode === 'mock'
+      ? 'Mock API'
+      : config.apiMode === 'hybrid'
+        ? `Hybrid · ${config.liveEndpoints.size} live`
+        : 'Live API';
+  return (
+    <Link
+      to="/dev/api"
+      className={cx(styles.modeBadge, config.apiMode !== 'mock' && styles.modeBadgeLive)}
+      title="Where API requests are answered — open the contract explorer"
+    >
+      {label}
+    </Link>
   );
 }

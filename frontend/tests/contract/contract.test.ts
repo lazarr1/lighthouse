@@ -398,3 +398,22 @@ describe('uploads', () => {
     ).rejects.toMatchObject({ code: 'validation_failed' });
   });
 });
+
+describe('hybrid mode', () => {
+  it('omits mock handlers for live endpoints so their requests reach the real backend', async () => {
+    const { selectEndpoints: select } = await import('@/api/contract');
+    const all = createHandlers(new MockDb({ recordCount: 1 }), { baseUrl: '', latencyMs: 0, strict: true });
+    const hybrid = createHandlers(
+      new MockDb({ recordCount: 1 }),
+      { baseUrl: '', latencyMs: 0, strict: true },
+      select('Session, updateRecord').names,
+    );
+    const paths = hybrid.map(
+      (h) => `${(h.info as { method: string }).method} ${(h.info as { path: string }).path}`,
+    );
+    expect(all.length - hybrid.length).toBe(3);
+    expect(paths).not.toContain('GET /v1/session');
+    expect(paths).not.toContain('PATCH /v1/datasets/:datasetId/records/:recordId');
+    expect(paths).toContain('GET /v1/datasets/:datasetId/records/:recordId');
+  });
+});

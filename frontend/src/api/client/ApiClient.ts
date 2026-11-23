@@ -66,7 +66,7 @@ export class ApiClient {
   ): Promise<Response> {
     const url = new URL(
       this.options.baseUrl + buildPath(endpoint.path, request.params),
-      globalThis.location?.origin,
+      (globalThis as { location?: { origin: string } }).location?.origin,
     );
     if (request.query) {
       for (const [key, value] of Object.entries(request.query as Record<string, unknown>)) {

@@ -144,3 +144,13 @@
     grid-template-columns: 1fr;
   }
 }
+
+.live {
+  margin-left: auto;
+  padding: 1px 6px;
+  border-radius: 999px;
+  color: var(--amber);
+  background: var(--amber-soft);
+  font-size: 0.62rem;
+  font-weight: 700;
+}

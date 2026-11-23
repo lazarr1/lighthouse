@@ -15,6 +15,16 @@ overall system design).
 Where this API differs from the sketch in `design.md §11` it is deliberate; see
 [§6](#6-differences-from-designmd-11).
 
+## 0. Testing your implementation locally
+
+1. Run your server (e.g. on `:8080`). In `frontend/.env.local` set `VITE_API_MODE=hybrid`,
+   `VITE_API_PROXY_TARGET=http://localhost:8080`, and list the endpoints you've built in
+   `VITE_LIVE_ENDPOINTS`. The UI uses your server for those and the mock for everything else.
+2. `npm run contract:check [-- --writes]` validates every response your server returns.
+3. `npm run fixtures:export` writes `fixtures/seed.json` so your database can use the mock's IDs.
+
+See the frontend README for details.
+
 ## 1. Services the client assumes
 
 ```mermaid

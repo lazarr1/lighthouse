@@ -8,3 +8,4 @@ export * from './endpoints';
 export * from './records';
 export * from './uploads';
 export * from './workspace';
+export * from './selectEndpoints';

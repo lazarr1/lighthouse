@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { endpoints, TERMINAL_RUN_STATUSES } from '@/api/contract';
+import { endpoints, handlerKey, TERMINAL_RUN_STATUSES, type EndpointName } from '@/api/contract';
 import { contractHandler, contractStreamHandler, type ContractHandlerOptions } from './contractHandler';
 import { MockApiError, type MockDb } from './db';
 import { MockQueryError, queryRecords } from './queryEngine';
@@ -8,7 +8,22 @@ import { MockQueryError, queryRecords } from './queryEngine';
  * One handler per contract endpoint. `tests/contract/coverage.test.ts` fails if
  * an endpoint is added to the contract without a handler here.
  */
-export function createHandlers(db: MockDb, options: ContractHandlerOptions) {
+export function createHandlers(
+  db: MockDb,
+  options: ContractHandlerOptions,
+  /** Endpoints served by a real backend: no mock handler, so requests pass through. */
+  live: ReadonlySet<EndpointName> = new Set(),
+) {
+  const handlers = createAllHandlers(db, options);
+  if (live.size === 0) return handlers;
+  const liveKeys = new Set([...live].map((name) => handlerKey(endpoints[name], options.baseUrl)));
+  return handlers.filter((handler) => {
+    const info = handler.info as { method: string; path: string };
+    return !liveKeys.has(`${info.method} ${info.path}`);
+  });
+}
+
+function createAllHandlers(db: MockDb, options: ContractHandlerOptions) {
   const on = <E extends Parameters<typeof contractHandler>[0]>(
     endpoint: E,
     resolve: Parameters<typeof contractHandler<E>>[2],

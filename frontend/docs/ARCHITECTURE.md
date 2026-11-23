@@ -79,7 +79,16 @@ flowchart LR
   Contract -. generates .-> OpenAPI[docs/openapi.json]
 ```
 
-### 4.1 Composition root
+### 4.1 API modes
+
+`VITE_API_MODE` selects `mock` (everything from MSW), `hybrid` (endpoints in
+`VITE_LIVE_ENDPOINTS` pass through MSW to the Vite dev proxy and on to a real
+backend; the rest are mocked) or `http` (everything real). The mock simply
+omits handlers for live endpoints (`createHandlers(db, options, live)`).
+`npm run contract:check` (`src/api/liveCheck.ts`) validates a running backend
+and is itself tested against the mock.
+
+### 4.2 Composition root
 
 `app/services.ts#createAppServices(config)` creates the `ApiClient`, the
 `QueryClient` and the auth state. Everything with side effects is created
@@ -90,7 +99,7 @@ Query defaults: 30 s stale time, refetch on focus, retries **only** for
 transient errors (`network_error`, `unavailable`, `rate_limited`), never for
 mutations.
 
-### 4.2 The API client
+### 4.3 The API client
 
 `ApiClient.request(endpoint, { params, body, query, ifMatch, idempotencyKey, signal })`
 
@@ -105,7 +114,7 @@ mutations.
 - `ApiClient.stream(endpoint, …)` reads `text/event-stream` with `fetch`
   (so cookies/headers work, unlike `EventSource`) and yields validated events.
 
-### 4.3 State
+### 4.4 State
 
 | Kind of state                                                               | Where it lives                                       |
 | --------------------------------------------------------------------------- | ---------------------------------------------------- |
