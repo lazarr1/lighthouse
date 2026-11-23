@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 4.4)
 
 project(db_engine)
 
@@ -33,6 +33,7 @@ target_sources(db_engine_lib
     src/result.cpp
     sqlite/sqlite_database_adapter.cpp
     sqlite/sqlite_database_session.cpp
+    sqlite/internal/sqlite_lib.cpp
 
   PUBLIC
     FILE_SET HEADERS

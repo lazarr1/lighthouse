@@ -1,5 +1,6 @@
 #include "sqlite_database_adapter.hpp"
 #include "i_database_session.hpp"
+#include "internal/sqlite_lib.hpp"
 #include "result.hpp"
 #include "sqlite_database_session.hpp"
 

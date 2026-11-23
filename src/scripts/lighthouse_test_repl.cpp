@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
 
   if (!result) {
     std::cout << "failed to open session for db: " << argv[1] << std::endl;
+    exit(2);
   }
 
   auto session = std::move(*result);

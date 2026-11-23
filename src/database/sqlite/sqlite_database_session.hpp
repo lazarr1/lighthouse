@@ -1,7 +1,7 @@
 #pragma once
 
 #include "i_database_session.hpp"
-#include "sqlite_database_adapter.hpp"
+#include "internal/sqlite_lib.hpp"
 
 namespace db {
 

@@ -3,11 +3,12 @@
 #include "capabilities.hpp"
 #include "i_database_session.hpp"
 #include "result.hpp"
+#include <memory>
 
 namespace db {
 
 class iDatabaseAdapter {
- public:
+public:
   virtual ~iDatabaseAdapter() = default;
 
   virtual Result<std::unique_ptr<iDatabaseSession>> open() const = 0;
