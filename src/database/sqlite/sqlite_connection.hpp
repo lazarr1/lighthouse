@@ -1,14 +1,14 @@
 #pragma once
 
-#include "i_database_session.hpp"
+#include "i_connection.hpp"
 #include "internal/sqlite_lib.hpp"
 
 namespace db {
 
-class SqliteDatabaseSession : public iDatabaseSession {
+class SqliteConnection : public iConnection {
 
 public:
-  explicit SqliteDatabaseSession(SqliteHandle db);
+  explicit SqliteConnection(SqliteHandle db);
 
   // TODO: transactions with savepoints?
   Result<void> beginTransaction(TransactionMode mode) override;

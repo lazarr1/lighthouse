@@ -1,6 +1,6 @@
 #include "query.hpp"
-#include "sqlite_database_adapter.hpp"
-#include "sqlite_database_session.hpp"
+#include "sqlite_database.hpp"
+#include "sqlite_connection.hpp"
 #include <iostream>
 #include <string>
 #include <variant>
@@ -17,20 +17,20 @@ int main(int argc, char *argv[]) {
 
   std::string line;
 
-  db::SqliteDatabaseAdapter adapter(conf);
-  auto result = adapter.open();
+  db::SqliteDatabase database(conf);
+  auto result = database.open();
 
   if (!result) {
-    std::cout << "failed to open session for db: " << argv[1] << std::endl;
+    std::cout << "failed to open connection for db: " << argv[1] << std::endl;
     exit(2);
   }
 
-  auto session = std::move(*result);
+  auto connection = std::move(*result);
 
   while (std::getline(std::cin, line)) {
 
     db::Command command(line);
-    auto resp = session->execute(command);
+    auto resp = connection->execute(command);
     if (!resp) {
       std::cout << resp.error().message.value() << std::endl;
       continue;

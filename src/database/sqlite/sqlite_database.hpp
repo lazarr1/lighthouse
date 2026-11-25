@@ -2,7 +2,7 @@
 
 #include "capabilities.hpp"
 #include "config.hpp"
-#include "i_database_adapter.hpp"
+#include "i_database.hpp"
 #include "result.hpp"
 
 #include <filesystem>
@@ -20,11 +20,11 @@ struct SqliteConfig {
   SQLiteDurability durability = SQLiteDurability::Full;
 };
 
-class SqliteDatabaseAdapter final : public iDatabaseAdapter {
+class SqliteDatabase final : public iDatabase {
 public:
-  explicit SqliteDatabaseAdapter(const SqliteConfig conf);
+  explicit SqliteDatabase(const SqliteConfig conf);
 
-  Result<std::unique_ptr<iDatabaseSession>> open() const override;
+  Result<std::unique_ptr<iConnection>> open() const override;
   const Capabilities getCapabilities() const override;
 
 private:

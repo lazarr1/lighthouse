@@ -4,12 +4,12 @@
 
 #include <gmock/gmock.h>
 
-#include <i_database_adapter.hpp>
-#include <i_database_session.hpp>
+#include <i_database.hpp>
+#include <i_connection.hpp>
 
 namespace lighthouse::testing {
 
-class MockDatabaseSession final : public ::db::iDatabaseSession {
+class MockConnection final : public ::db::iConnection {
  public:
   MOCK_METHOD(::db::Result<void>, beginTransaction,
               (::db::TransactionMode mode), (override));
@@ -17,9 +17,9 @@ class MockDatabaseSession final : public ::db::iDatabaseSession {
   MOCK_METHOD(::db::Result<void>, rollback, (), (override));
 };
 
-class MockDatabaseAdapter final : public ::db::iDatabaseAdapter {
+class MockDatabase final : public ::db::iDatabase {
  public:
-  using OpenResult = ::db::Result<std::unique_ptr<::db::iDatabaseSession>>;
+  using OpenResult = ::db::Result<std::unique_ptr<::db::iConnection>>;
 
   MOCK_METHOD(OpenResult, open, (), (const, override));
   MOCK_METHOD(const ::db::Capabilities, getCapabilities, (), (const, override));

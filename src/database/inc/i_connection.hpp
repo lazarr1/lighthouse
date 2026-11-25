@@ -6,9 +6,9 @@
 namespace db {
 enum class TransactionMode { ReadOnly, ReadWrite };
 
-class iDatabaseSession {
+class iConnection {
 public:
-  virtual ~iDatabaseSession() = default;
+  virtual ~iConnection() = default;
   // virtual AsyncResult<QueryPage> query(QuerySpec spec) = 0;
 
   // For now just let user execute whatever they want on SQL side.

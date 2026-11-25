@@ -1,18 +1,18 @@
-#include "sqlite_database_adapter.hpp"
-#include "i_database_session.hpp"
+#include "sqlite_database.hpp"
+#include "i_connection.hpp"
 #include "internal/sqlite_lib.hpp"
 #include "result.hpp"
-#include "sqlite_database_session.hpp"
+#include "sqlite_connection.hpp"
 
 #include <expected>
 #include <sqlite3.h>
 
 namespace db {
 
-SqliteDatabaseAdapter::SqliteDatabaseAdapter(const SqliteConfig conf)
+SqliteDatabase::SqliteDatabase(const SqliteConfig conf)
     : conf(conf) {}
 
-Result<std::unique_ptr<iDatabaseSession>> SqliteDatabaseAdapter::open() const {
+Result<std::unique_ptr<iConnection>> SqliteDatabase::open() const {
   sqlite3 *db = nullptr;
 
   const int openModeFlags = getOpenModeFlags();
@@ -29,10 +29,10 @@ Result<std::unique_ptr<iDatabaseSession>> SqliteDatabaseAdapter::open() const {
                 db ? sqlite3_errmsg(db) : sqlite3_errstr(result)));
   }
 
-  return std::make_unique<SqliteDatabaseSession>(std::move(dbHndlr));
+  return std::make_unique<SqliteConnection>(std::move(dbHndlr));
 }
 
-const Capabilities SqliteDatabaseAdapter::getCapabilities() const {
+const Capabilities SqliteDatabase::getCapabilities() const {
   // TODO: Move
   return {
       .writable = (conf.openMode == OpenMode::ReadWrite) ||
@@ -52,7 +52,7 @@ const Capabilities SqliteDatabaseAdapter::getCapabilities() const {
   };
 }
 
-int SqliteDatabaseAdapter::getOpenModeFlags() const {
+int SqliteDatabase::getOpenModeFlags() const {
   switch (conf.openMode) {
   case OpenMode::ReadOnly:
     return SQLITE_OPEN_READONLY;

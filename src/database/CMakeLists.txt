@@ -31,8 +31,8 @@ lighthouse_set_project_warnings(db_engine_lib)
 target_sources(db_engine_lib
   PRIVATE
     src/result.cpp
-    sqlite/sqlite_database_adapter.cpp
-    sqlite/sqlite_database_session.cpp
+    sqlite/sqlite_database.cpp
+    sqlite/sqlite_connection.cpp
     sqlite/internal/sqlite_lib.cpp
 
   PUBLIC

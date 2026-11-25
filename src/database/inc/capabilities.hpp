@@ -18,7 +18,7 @@ struct ConcurrencyCapabilities {
   bool concurrentReads;
   bool readsDuringWrite;
 
-  // nullopt means the adapter imposes no fixed writer-count limit.
+  // nullopt means the database imposes no fixed writer-count limit.
   std::optional<std::size_t> maxConcurrentWriters;
 };
 

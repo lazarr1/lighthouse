@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "i_database_session.hpp"
-#include "sqlite_database_session.hpp"
+#include "i_connection.hpp"
+#include "sqlite_connection.hpp"
 
 namespace db {
 namespace {
@@ -39,10 +39,10 @@ Result<value> readColumn(sqlite3_stmt *statement, const int column) {
 
 } // namespace
 
-SqliteDatabaseSession::SqliteDatabaseSession(SqliteHandle db)
+SqliteConnection::SqliteConnection(SqliteHandle db)
     : db_(std::move(db)), transactionMode_(TransactionMode::ReadOnly) {}
 
-Result<void> SqliteDatabaseSession::beginTransaction(TransactionMode mode) {
+Result<void> SqliteConnection::beginTransaction(TransactionMode mode) {
   if (!sqlite3_get_autocommit(db_.get())) {
     return std::unexpected(DbError(DbErrorCode::TransactionAlreadyStarted));
   }
@@ -70,7 +70,7 @@ Result<void> SqliteDatabaseSession::beginTransaction(TransactionMode mode) {
   return {};
 }
 
-Result<void> SqliteDatabaseSession::commit() {
+Result<void> SqliteConnection::commit() {
   if (sqlite3_get_autocommit(db_.get())) {
     return std::unexpected(DbError(DbErrorCode::NoTransactionPresent));
   }
@@ -84,7 +84,7 @@ Result<void> SqliteDatabaseSession::commit() {
   return {};
 }
 
-Result<void> SqliteDatabaseSession::rollback() {
+Result<void> SqliteConnection::rollback() {
   if (sqlite3_get_autocommit(db_.get())) {
     return std::unexpected(DbError(DbErrorCode::NoTransactionPresent));
   }
@@ -99,7 +99,7 @@ Result<void> SqliteDatabaseSession::rollback() {
   return {};
 }
 
-Result<QueryPage> SqliteDatabaseSession::execute(Command cmd) {
+Result<QueryPage> SqliteConnection::execute(Command cmd) {
 
   sqlite3_stmt *rawStatement = nullptr;
   const int prepareResult = sqlite3_prepare_v2(db_.get(), cmd.command.c_str(),
@@ -150,7 +150,7 @@ Result<QueryPage> SqliteDatabaseSession::execute(Command cmd) {
   return page;
 }
 
-// AsyncResult<QueryPage> SqliteDatabaseSession::query(QuerySpec spec) {}
-// AsyncResult<CommandResult> SqliteDatabaseSession::execute(Command cmd) {}
+// AsyncResult<QueryPage> SqliteConnection::query(QuerySpec spec) {}
+// AsyncResult<CommandResult> SqliteConnection::execute(Command cmd) {}
 
 }; // namespace db

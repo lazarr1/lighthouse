@@ -2,59 +2,59 @@
 
 #include <gtest/gtest.h>
 
-#include "sqlite_database_adapter.hpp"
+#include "sqlite_database.hpp"
 
 namespace {
 
-std::unique_ptr<db::iDatabaseSession> openInMemorySession() {
-  db::SqliteDatabaseAdapter adapter(
+std::unique_ptr<db::iConnection> openInMemoryConnection() {
+  db::SqliteDatabase database(
       {.path = ":memory:", .openMode = db::OpenMode::ReadWriteCreate});
-  auto session = adapter.open();
+  auto connection = database.open();
 
-  EXPECT_TRUE(session.has_value());
-  return session ? std::move(*session) : nullptr;
+  EXPECT_TRUE(connection.has_value());
+  return connection ? std::move(*connection) : nullptr;
 }
 
-TEST(SqliteDatabaseAdapterTest, OpensInMemorySession) {
-  auto session = openInMemorySession();
+TEST(SqliteDatabaseTest, OpensInMemoryConnection) {
+  auto connection = openInMemoryConnection();
 
-  ASSERT_NE(session, nullptr);
+  ASSERT_NE(connection, nullptr);
 }
 
-TEST(SqliteDatabaseSessionTest, BeginsReadWriteTransactionAndCommits) {
-  auto session = openInMemorySession();
-  ASSERT_NE(session, nullptr);
+TEST(SqliteConnectionTest, BeginsReadWriteTransactionAndCommits) {
+  auto connection = openInMemoryConnection();
+  ASSERT_NE(connection, nullptr);
 
-  EXPECT_TRUE(session->beginTransaction(db::TransactionMode::ReadWrite).has_value());
-  EXPECT_TRUE(session->commit().has_value());
+  EXPECT_TRUE(connection->beginTransaction(db::TransactionMode::ReadWrite).has_value());
+  EXPECT_TRUE(connection->commit().has_value());
 }
 
-TEST(SqliteDatabaseSessionTest, BeginsReadOnlyTransactionAndRollsBack) {
-  auto session = openInMemorySession();
-  ASSERT_NE(session, nullptr);
+TEST(SqliteConnectionTest, BeginsReadOnlyTransactionAndRollsBack) {
+  auto connection = openInMemoryConnection();
+  ASSERT_NE(connection, nullptr);
 
-  EXPECT_TRUE(session->beginTransaction(db::TransactionMode::ReadOnly).has_value());
-  EXPECT_TRUE(session->rollback().has_value());
+  EXPECT_TRUE(connection->beginTransaction(db::TransactionMode::ReadOnly).has_value());
+  EXPECT_TRUE(connection->rollback().has_value());
 }
 
-TEST(SqliteDatabaseSessionTest, RejectsSecondTransactionWhileOneIsActive) {
-  auto session = openInMemorySession();
-  ASSERT_NE(session, nullptr);
-  ASSERT_TRUE(session->beginTransaction(db::TransactionMode::ReadOnly).has_value());
+TEST(SqliteConnectionTest, RejectsSecondTransactionWhileOneIsActive) {
+  auto connection = openInMemoryConnection();
+  ASSERT_NE(connection, nullptr);
+  ASSERT_TRUE(connection->beginTransaction(db::TransactionMode::ReadOnly).has_value());
 
-  const auto result = session->beginTransaction(db::TransactionMode::ReadWrite);
+  const auto result = connection->beginTransaction(db::TransactionMode::ReadWrite);
 
   ASSERT_FALSE(result.has_value());
   EXPECT_EQ(result.error().ec, db::DbErrorCode::TransactionAlreadyStarted);
-  EXPECT_TRUE(session->rollback().has_value());
+  EXPECT_TRUE(connection->rollback().has_value());
 }
 
-TEST(SqliteDatabaseSessionTest, RejectsCommitAndRollbackWithoutTransaction) {
-  auto session = openInMemorySession();
-  ASSERT_NE(session, nullptr);
+TEST(SqliteConnectionTest, RejectsCommitAndRollbackWithoutTransaction) {
+  auto connection = openInMemoryConnection();
+  ASSERT_NE(connection, nullptr);
 
-  const auto commit = session->commit();
-  const auto rollback = session->rollback();
+  const auto commit = connection->commit();
+  const auto rollback = connection->rollback();
 
   ASSERT_FALSE(commit.has_value());
   EXPECT_EQ(commit.error().ec, db::DbErrorCode::NoTransactionPresent);
@@ -62,36 +62,36 @@ TEST(SqliteDatabaseSessionTest, RejectsCommitAndRollbackWithoutTransaction) {
   EXPECT_EQ(rollback.error().ec, db::DbErrorCode::NoTransactionPresent);
 }
 
-TEST(SqliteDatabaseSessionTest, RejectsInvalidTransactionMode) {
-  auto session = openInMemorySession();
-  ASSERT_NE(session, nullptr);
+TEST(SqliteConnectionTest, RejectsInvalidTransactionMode) {
+  auto connection = openInMemoryConnection();
+  ASSERT_NE(connection, nullptr);
 
   const auto result =
-      session->beginTransaction(static_cast<db::TransactionMode>(-1));
+      connection->beginTransaction(static_cast<db::TransactionMode>(-1));
 
   ASSERT_FALSE(result.has_value());
   EXPECT_EQ(result.error().ec, db::DbErrorCode::UnknownTransactionType);
 }
 
-TEST(SqliteDatabaseSessionTest, ResetsTransactionStateAfterCommitAndRollback) {
-  auto session = openInMemorySession();
-  ASSERT_NE(session, nullptr);
+TEST(SqliteConnectionTest, ResetsTransactionStateAfterCommitAndRollback) {
+  auto connection = openInMemoryConnection();
+  ASSERT_NE(connection, nullptr);
 
-  ASSERT_TRUE(session->beginTransaction(db::TransactionMode::ReadWrite).has_value());
-  ASSERT_TRUE(session->commit().has_value());
-  ASSERT_TRUE(session->beginTransaction(db::TransactionMode::ReadOnly).has_value());
-  EXPECT_TRUE(session->rollback().has_value());
+  ASSERT_TRUE(connection->beginTransaction(db::TransactionMode::ReadWrite).has_value());
+  ASSERT_TRUE(connection->commit().has_value());
+  ASSERT_TRUE(connection->beginTransaction(db::TransactionMode::ReadOnly).has_value());
+  EXPECT_TRUE(connection->rollback().has_value());
 }
 
-TEST(SqliteDatabaseSessionTest, ExecutesCommandsAndReturnsResultRows) {
-  auto session = openInMemorySession();
-  ASSERT_NE(session, nullptr);
+TEST(SqliteConnectionTest, ExecutesCommandsAndReturnsResultRows) {
+  auto connection = openInMemoryConnection();
+  ASSERT_NE(connection, nullptr);
 
   EXPECT_TRUE(
-      session->execute({.command = "CREATE TABLE data (id INTEGER, name TEXT);"}).has_value());
-  EXPECT_TRUE(session->execute({.command = "INSERT INTO data VALUES (7, 'Ada');"}).has_value());
+      connection->execute({.command = "CREATE TABLE data (id INTEGER, name TEXT);"}).has_value());
+  EXPECT_TRUE(connection->execute({.command = "INSERT INTO data VALUES (7, 'Ada');"}).has_value());
 
-  const auto result = session->execute({.command = "SELECT id, name FROM data;"});
+  const auto result = connection->execute({.command = "SELECT id, name FROM data;"});
   ASSERT_TRUE(result.has_value());
   const auto &page = *result;
   ASSERT_EQ(page.columns.size(), 2U);
@@ -100,11 +100,11 @@ TEST(SqliteDatabaseSessionTest, ExecutesCommandsAndReturnsResultRows) {
   EXPECT_EQ(std::get<std::string>(page.rows[0].values[1]), "Ada");
 }
 
-TEST(SqliteDatabaseSessionTest, ReportsInvalidCommands) {
-  auto session = openInMemorySession();
-  ASSERT_NE(session, nullptr);
+TEST(SqliteConnectionTest, ReportsInvalidCommands) {
+  auto connection = openInMemoryConnection();
+  ASSERT_NE(connection, nullptr);
 
-  const auto result = session->execute({.command = "not valid sql"});
+  const auto result = connection->execute({.command = "not valid sql"});
 
   ASSERT_FALSE(result.has_value());
   EXPECT_EQ(result.error().ec, db::DbErrorCode::CommandFailed);
