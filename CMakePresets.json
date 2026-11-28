@@ -19,6 +19,14 @@
         "LIGHTHOUSE_ENABLE_COVERAGE": "OFF",
         "RUN_TESTS": "ON"
       }
+    },
+    {
+      "name": "artifacts",
+      "inherits": "default",
+      "binaryDir": "${sourceDir}/build/artifacts",
+      "cacheVariables": {
+        "LIGHTHOUSE_EMIT_ARTIFACTS": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -32,6 +40,11 @@
       "configurePreset": "tests",
       "configuration": "Debug",
       "targets": ["lighthouse_tests"]
+    },
+    {
+      "name": "artifacts",
+      "configurePreset": "artifacts",
+      "configuration": "RelWithDebInfo"
     }
   ]
 }

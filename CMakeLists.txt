@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 4.4)
 
 project(lighthouse)
 
@@ -6,9 +6,11 @@ project(lighthouse)
 option(LIGHTHOUSE_WARNINGS_AS_ERRORS "Treat project warnings as errors" ON)
 
 include(cmake/ProjectWarnings.cmake)
+include(cmake/CompilerArtifacts.cmake)
 
 add_subdirectory(src/database)
 add_subdirectory(src/scripts)
+# add_subdirectory(src/llm)
 
 option(RUN_TESTS "Run and build tests" 0)
 if(RUN_TESTS)

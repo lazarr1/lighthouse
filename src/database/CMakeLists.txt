@@ -27,6 +27,7 @@ target_compile_features(db_engine_contracts INTERFACE cxx_std_23)
 add_library(db_engine_lib)
 
 lighthouse_set_project_warnings(db_engine_lib)
+lighthouse_emit_artifacts(db_engine_lib)
 
 target_sources(db_engine_lib
   PRIVATE
